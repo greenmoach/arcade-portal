@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Reaction Time — Game Portal</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#f5f5f7;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;display:flex;flex-direction:column;align-items:center;min-height:100vh;padding-bottom:40px}
+nav{width:100%;background:#fff;border-bottom:1px solid #e5e7eb;padding:0 24px;height:50px;display:flex;align-items:center}
+nav a{color:#6c63ff;text-decoration:none;font-size:14px;font-weight:500}
+h1{margin:20px 0 4px;font-size:24px;font-weight:700}
+.sub{color:#6b7280;font-size:14px;margin-bottom:16px;text-align:center;padding:0 16px}
+.score-bar{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-bottom:16px}
+.score-box{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:8px 18px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.06);min-width:110px}
+.score-label{font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:.05em}
+.score-val{font-size:20px;font-weight:700;color:#6c63ff}
+.game{position:relative;width:min(540px,94vw)}
+.stage{height:340px;border-radius:20px;border:none;width:100%;font-size:30px;font-weight:800;color:#fff;cursor:pointer;box-shadow:0 12px 24px rgba(0,0,0,.12);padding:24px;background:#6b7280;transition:transform .12s}
+.stage:hover{transform:translateY(-2px)}
+.stage.waiting{background:#ef4444}
+.stage.ready{background:#16a34a}
+.stage.result{background:#6c63ff}
+.status{margin-top:16px;text-align:center;min-height:24px;color:#374151;font-weight:700}
+.overlay{position:absolute;inset:0;background:rgba(245,245,247,.95);border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:24px;text-align:center}
+.overlay p{color:#6b7280;max-width:320px;line-height:1.5}
+.controls{margin-top:16px;display:flex;justify-content:center}
+.btn{padding:9px 22px;background:#6c63ff;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer}
+.btn:hover{background:#574fd6}
+.hint{margin-top:14px;font-size:12px;color:#9ca3af;text-align:center;padding:0 16px}
+</style>
+</head>
+<body>
+<nav><a href="../../">← Back to Portal</a></nav>
+<h1>⚡ Reaction Time</h1>
+<p class="sub">Wait for green, then tap as fast as you can. Complete 5 rounds for your average.</p>
+
+<div class="score-bar">
+  <div class="score-box"><div class="score-label">Last Time</div><div class="score-val" id="last">—</div></div>
+  <div class="score-box"><div class="score-label">Rounds</div><div class="score-val" id="rounds">0 / 5</div></div>
+  <div class="score-box"><div class="score-label">Best Avg</div><div class="score-val" id="best">—</div></div>
+</div>
+
+<div class="game">
+  <button class="stage" id="stage">Press Start to begin</button>
+  <div class="overlay" id="overlay">
+    <h2>⚡ Ready to Test Your Reflexes?</h2>
+    <p>Tap the big panel or press Space as soon as it turns green. If you click too early, the round restarts.</p>
+    <button class="btn" id="overlay-btn" onclick="startGame()">Start Challenge</button>
+  </div>
+</div>
+<div class="status" id="status">Finish 5 rounds to record your best average.</div>
+<div class="controls"><button class="btn" onclick="startGame()">Restart</button></div>
+<p class="hint">Tap the panel on mobile · Space / Enter works on desktop</p>
+
+<script>
+const BEST_KEY='reactionBestAverage';
+const stage=document.getElementById('stage');
+const overlay=document.getElementById('overlay');
+const lastEl=document.getElementById('last');
+const roundsEl=document.getElementById('rounds');
+const bestEl=document.getElementById('best');
+const statusEl=document.getElementById('status');
+let state='idle',results=[],timer,startTime=0;
+const savedBest=+(localStorage.getItem(BEST_KEY)||0);
+bestEl.textContent=savedBest?`${savedBest}ms`:'—';
+
+function startGame(){
+  clearTimeout(timer);
+  results=[];
+  lastEl.textContent='—';
+  roundsEl.textContent='0 / 5';
+  overlay.style.display='none';
+  statusEl.textContent='Wait for red to turn green.';
+  prepareRound();
+}
+
+function prepareRound(){
+  state='waiting';
+  stage.className='stage waiting';
+  stage.textContent='Wait for green...';
+  timer=setTimeout(()=>{
+    state='ready';
+    startTime=performance.now();
+    stage.className='stage ready';
+    stage.textContent='CLICK NOW!';
+  },1500+Math.random()*1800);
+}
+
+function pressAction(){
+  if(overlay.style.display!=='none')return;
+  if(state==='waiting'){
+    clearTimeout(timer);
+    stage.className='stage';
+    stage.textContent='Too soon!';
+    statusEl.textContent='False start — get ready again.';
+    state='penalty';
+    setTimeout(prepareRound,900);
+    return;
+  }
+  if(state==='ready'){
+    const ms=Math.round(performance.now()-startTime);
+    results.push(ms);
+    lastEl.textContent=`${ms}ms`;
+    roundsEl.textContent=`${results.length} / 5`;
+    stage.className='stage result';
+    stage.textContent=`${ms}ms`;
+    if(results.length===5){finishGame();return;}
+    state='result';
+    statusEl.textContent='Nice! Tap again for the next round.';
+    return;
+  }
+  if(state==='result'||state==='penalty'){
+    prepareRound();
+  }
+}
+
+function finishGame(){
+  state='done';
+  const avg=Math.round(results.reduce((sum,val)=>sum+val,0)/results.length);
+  let best=+(localStorage.getItem(BEST_KEY)||0);
+  if(!best||avg<best){best=avg;localStorage.setItem(BEST_KEY,String(best));}
+  bestEl.textContent=`${best}ms`;
+  statusEl.textContent=`Challenge complete — average ${avg}ms.`;
+  overlay.innerHTML=`<h2>🏁 Finished!</h2><p>Your average reaction time was <strong>${avg}ms</strong>. Want another 5-round challenge?</p><button class="btn" id="overlay-btn">Play Again</button>`;
+  overlay.style.display='flex';
+  document.getElementById('overlay-btn').addEventListener('click',startGame);
+}
+
+stage.addEventListener('click',pressAction);
+document.addEventListener('keydown',e=>{
+  if(e.key!==' '&&e.key!=='Enter')return;
+  e.preventDefault();
+  if(overlay.style.display!=='none'){document.getElementById('overlay-btn').click();return;}
+  pressAction();
+});
+</script>
+</body>
+</html>

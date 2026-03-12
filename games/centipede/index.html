@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>🐛 Centipede — Game Portal</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{background:#f5f5f7;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;display:flex;flex-direction:column;align-items:center;min-height:100vh;padding-bottom:40px}nav{width:100%;background:#fff;border-bottom:1px solid #e5e7eb;padding:0 24px;height:50px;display:flex;align-items:center}nav a{color:#6c63ff;text-decoration:none;font-size:14px;font-weight:500}nav a:hover{text-decoration:underline}h1{margin:20px 0 4px;font-size:24px;font-weight:700}.sub{font-size:14px;color:#6b7280;text-align:center;margin-bottom:16px;padding:0 16px}.score-bar{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-bottom:16px}.score-box{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:8px 18px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.06);min-width:90px}.score-label{font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:.05em}.score-val{font-size:20px;font-weight:700;color:#6c63ff}.wrap{position:relative;background:#fff;border:1px solid #e5e7eb;border-radius:18px;box-shadow:0 8px 20px rgba(0,0,0,.08);padding:18px}.canvas{background:linear-gradient(180deg,#111827,#020617);border-radius:14px;border:1px solid #0f172a;display:block}.controls{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}.touch-btn,.btn{padding:12px 16px;background:#6c63ff;color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer}.btn{font-size:14px;padding:9px 22px}.status{margin-top:14px;text-align:center;min-height:24px;color:#4b5563;font-weight:600}.overlay{position:absolute;inset:0;background:rgba(245,245,247,.94);border-radius:18px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:10px;padding:24px;text-align:center}.overlay p{color:#6b7280;max-width:320px;line-height:1.5}.hint{margin-top:12px;font-size:12px;color:#9ca3af;text-align:center;padding:0 16px}
+</style>
+</head>
+<body>
+<nav><a href="../../">← Back to Portal</a></nav>
+<h1>🐛 Centipede</h1>
+<p class="sub">Blast mushrooms and chew through the crawling centipede before it reaches you.</p>
+<div class="score-bar">
+  <div class="score-box"><div class="score-label">Score</div><div class="score-val" id="score">0</div></div>
+  <div class="score-box"><div class="score-label">Lives</div><div class="score-val" id="lives">3</div></div>
+  <div class="score-box"><div class="score-label">Wave</div><div class="score-val" id="wave">1</div></div>
+  <div class="score-box"><div class="score-label">Best</div><div class="score-val" id="best">0</div></div>
+</div>
+<div class="wrap">
+  <canvas id="c" class="canvas" width="420" height="560"></canvas>
+  <div class="controls" style="grid-template-columns:repeat(5,1fr)">
+    <button class="touch-btn" data-action="left">←</button>
+    <button class="touch-btn" data-action="up">↑</button>
+    <button class="touch-btn" data-action="down">↓</button>
+    <button class="touch-btn" data-action="right">→</button>
+    <button class="touch-btn" data-action="fire">●</button>
+  </div>
+  <div class="status" id="status">Press Start to begin.</div>
+  <div style="margin-top:10px;text-align:center"><button class="btn" onclick="startGame()">Restart</button></div>
+  <div class="overlay" id="overlay">
+    <h2>🐛 Centipede</h2>
+    <p>Move with the arrow keys, fire with Space, and stay inside the lower garden while you thin the centipede.</p>
+    <button class="btn" id="overlay-btn" onclick="startGame()">Start Game</button>
+  </div>
+</div>
+<p class="hint">Arrow keys / Space · Hold mobile buttons for movement and firing</p>
+<script>
+const canvas=document.getElementById('c'),ctx=canvas.getContext('2d');
+const overlay=document.getElementById('overlay'),statusEl=document.getElementById('status');
+const scoreEl=document.getElementById('score'),livesEl=document.getElementById('lives'),waveEl=document.getElementById('wave'),bestEl=document.getElementById('best');
+const BEST_KEY='centipedeBest',CELL=20,COLS=21,ROWS=28;
+const controls={left:false,right:false,up:false,down:false,fire:false};
+let player,centipede=[],mushrooms=[],bullets=[],score=0,lives=3,wave=1,best=+(localStorage.getItem(BEST_KEY)||0),running=false,last=0,stepTimer=0,fireCd=0;
+bestEl.textContent=best;
+function resetPlayer(){player={x:10,y:25};}
+function spawnMushrooms(){mushrooms=[];for(let i=0;i<38;i++){const x=Math.floor(Math.random()*COLS),y=2+Math.floor(Math.random()*20);if((x===10&&y>22)||mushrooms.some(m=>m.x===x&&m.y===y))continue;mushrooms.push({x,y,hp:2});}}
+function spawnCentipede(){centipede=[];for(let i=0;i<9+wave;i++)centipede.push({x:i,y:0,dir:1});statusEl.textContent=`Wave ${wave}: keep it out of your garden.`;}
+function startGame(){score=0;lives=3;wave=1;bullets=[];spawnMushrooms();spawnCentipede();resetPlayer();running=true;overlay.style.display='none';updateStats();if(!last)requestAnimationFrame(loop);}
+function updateStats(){scoreEl.textContent=score;livesEl.textContent=lives;waveEl.textContent=wave;bestEl.textContent=best;}
+function mushroomAt(x,y){return mushrooms.find(m=>m.x===x&&m.y===y&&m.hp>0);}
+function loseLife(){lives--;updateStats();if(lives<=0){running=false;statusEl.textContent=`Game over at ${score} points.`;overlay.innerHTML=`<h2>🌿 Garden Overrun</h2><p>You reached wave ${wave} and scored ${score} points.</p><button class="btn" id="overlay-btn">Play Again</button>`;overlay.style.display='flex';document.getElementById('overlay-btn').addEventListener('click',startGame);}else{resetPlayer();statusEl.textContent='Watch out! Keep firing.';}}
+function update(dt){if(controls.left)player.x=Math.max(0,player.x-9*dt);if(controls.right)player.x=Math.min(COLS-1,player.x+9*dt);if(controls.up)player.y=Math.max(18,player.y-9*dt);if(controls.down)player.y=Math.min(ROWS-2,player.y+9*dt);fireCd=Math.max(0,fireCd-dt);if(controls.fire&&fireCd<=0){bullets.push({x:Math.round(player.x),y:player.y-1});fireCd=.22;}bullets=bullets.filter(b=>{b.y-=18*dt;return b.y>-1;});stepTimer+=dt;if(stepTimer>.18){stepTimer=0;moveCentipede();}for(let i=bullets.length-1;i>=0;i--){const bullet=bullets[i];const mushroom=mushroomAt(Math.round(bullet.x),Math.round(bullet.y));if(mushroom){mushroom.hp--;bullets.splice(i,1);if(mushroom.hp<=0)score+=2;continue;}const hit=centipede.findIndex(seg=>Math.abs(seg.x-bullet.x)<.45&&Math.abs(seg.y-bullet.y)<.45);if(hit!==-1){const seg=centipede.splice(hit,1)[0];mushrooms.push({x:Math.round(seg.x),y:Math.round(seg.y),hp:2});bullets.splice(i,1);score+=10;if(score>best){best=score;localStorage.setItem(BEST_KEY,String(best));}updateStats();}}
+  if(centipede.some(seg=>Math.abs(seg.x-player.x)<.6&&Math.abs(seg.y-player.y)<.6))loseLife();if(!centipede.length){wave++;spawnCentipede();updateStats();}}
+function moveCentipede(){for(let i=0;i<centipede.length;i++){const seg=centipede[i];const nx=seg.x+seg.dir;const blocked=nx<0||nx>=COLS||mushroomAt(nx,Math.round(seg.y));if(blocked){seg.dir*=-1;seg.y=Math.min(ROWS-2,seg.y+1);}else seg.x=nx;}if(centipede.some(seg=>seg.y>=24))statusEl.textContent='The centipede is closing in!';}
+function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);for(let y=0;y<ROWS;y++){ctx.strokeStyle='rgba(255,255,255,.04)';ctx.beginPath();ctx.moveTo(0,y*CELL);ctx.lineTo(canvas.width,y*CELL);ctx.stroke();}ctx.fillStyle='rgba(34,197,94,.08)';ctx.fillRect(0,18*CELL,canvas.width,10*CELL);mushrooms.filter(m=>m.hp>0).forEach(m=>{ctx.fillStyle=m.hp===2?'#f59e0b':'#fb7185';ctx.beginPath();ctx.arc(m.x*CELL+CELL/2,m.y*CELL+CELL/2,7,0,Math.PI*2);ctx.fill();ctx.fillStyle='#fff';ctx.fillRect(m.x*CELL+9,m.y*CELL+6,2,8);});centipede.forEach((seg,i)=>{ctx.fillStyle=i===0?'#34d399':'#10b981';ctx.beginPath();ctx.arc(seg.x*CELL+CELL/2,seg.y*CELL+CELL/2,8,0,Math.PI*2);ctx.fill();});ctx.fillStyle='#93c5fd';ctx.beginPath();ctx.moveTo(player.x*CELL+10,player.y*CELL+2);ctx.lineTo(player.x*CELL+18,player.y*CELL+18);ctx.lineTo(player.x*CELL+2,player.y*CELL+18);ctx.closePath();ctx.fill();ctx.fillStyle='#fef08a';bullets.forEach(b=>ctx.fillRect(b.x*CELL+9,b.y*CELL,3,10));}
+function loop(ts){const dt=Math.min(0.033,(ts-last||16)/1000);last=ts;if(running)update(dt);draw();requestAnimationFrame(loop);}
+document.addEventListener('keydown',e=>{if(overlay.style.display!=='none'&&(e.key==='Enter'||e.key===' ')){e.preventDefault();document.getElementById('overlay-btn').click();return;}if(e.key==='ArrowLeft'){controls.left=true;e.preventDefault();}if(e.key==='ArrowRight'){controls.right=true;e.preventDefault();}if(e.key==='ArrowUp'){controls.up=true;e.preventDefault();}if(e.key==='ArrowDown'){controls.down=true;e.preventDefault();}if(e.key===' '){controls.fire=true;e.preventDefault();}});
+document.addEventListener('keyup',e=>{if(e.key==='ArrowLeft')controls.left=false;if(e.key==='ArrowRight')controls.right=false;if(e.key==='ArrowUp')controls.up=false;if(e.key==='ArrowDown')controls.down=false;if(e.key===' ')controls.fire=false;});
+document.querySelectorAll('[data-action]').forEach(btn=>{const action=btn.dataset.action;const on=()=>controls[action]=true;const off=()=>controls[action]=false;btn.addEventListener('pointerdown',on);btn.addEventListener('pointerup',off);btn.addEventListener('pointerleave',off);btn.addEventListener('pointercancel',off);});
+draw();
+</script>
+</body>
+</html>

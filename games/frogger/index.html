@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Frogger — Game Portal</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{background:#f5f5f7;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;display:flex;flex-direction:column;align-items:center;min-height:100vh;padding-bottom:40px}nav{width:100%;background:#fff;border-bottom:1px solid #e5e7eb;padding:0 24px;height:50px;display:flex;align-items:center}nav a{color:#6c63ff;text-decoration:none;font-size:14px;font-weight:500}h1{margin:20px 0 4px;font-size:24px;font-weight:700}.sub{color:#6b7280;font-size:14px;margin-bottom:16px;text-align:center;padding:0 16px}.score-bar{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-bottom:16px}.score-box{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:8px 16px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.06);min-width:92px}.score-label{font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:.05em}.score-val{font-size:20px;font-weight:700;color:#6c63ff}.game{position:relative;background:#fff;border:1px solid #e5e7eb;border-radius:18px;padding:18px;box-shadow:0 8px 20px rgba(0,0,0,.08)}canvas{display:block;background:#dbeafe;border-radius:14px;border:1px solid #cbd5e1}.overlay{position:absolute;inset:18px;background:rgba(245,245,247,.94);border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;text-align:center}.overlay p{color:#6b7280;line-height:1.5;max-width:320px}.btn{padding:9px 22px;background:#6c63ff;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer}.status{margin-top:12px;text-align:center;color:#374151;font-weight:700;min-height:24px}.hint{margin-top:12px;font-size:12px;color:#9ca3af;text-align:center}
+</style>
+</head>
+<body>
+<nav><a href="../../">← Back to Portal</a></nav>
+<h1>🐸 Frogger</h1>
+<p class="sub">Hop across busy roads and drifting logs to reach safe lily pads at the top.</p>
+<div class="score-bar">
+  <div class="score-box"><div class="score-label">Score</div><div class="score-val" id="score">0</div></div>
+  <div class="score-box"><div class="score-label">Lives</div><div class="score-val" id="lives">3</div></div>
+  <div class="score-box"><div class="score-label">Level</div><div class="score-val" id="level">1</div></div>
+  <div class="score-box"><div class="score-label">Best</div><div class="score-val" id="best">0</div></div>
+</div>
+<div class="game">
+  <canvas id="game" width="440" height="528"></canvas>
+  <div class="overlay" id="overlay">
+    <h2>🐸 Frogger</h2>
+    <p>Use the arrow keys or WASD to hop one lane at a time. Swipe in any direction on touch screens.</p>
+    <button class="btn" id="overlay-btn" onclick="startGame()">Start Game</button>
+  </div>
+  <div class="status" id="status">Press Start to begin.</div>
+</div>
+<p class="hint">Arrow keys / WASD to move · Swipe to hop on touch devices</p>
+<script>
+const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
+const CELL=44,COLS=10,ROWS=12,BEST_KEY='froggerBest';
+const lanes=[{type:'goal'},{type:'water',speed:1.1,len:[2,3]},{type:'water',speed:-1.4,len:[3,2]},{type:'water',speed:1.8,len:[2,2]},{type:'safe'},{type:'road',speed:-2.4,len:[1,1,2]},{type:'road',speed:1.8,len:[2,1,1]},{type:'road',speed:-2.9,len:[1,2,1]},{type:'road',speed:2.3,len:[2,1,2]},{type:'safe'},{type:'safe'},{type:'start'}];
+let frog,actors=[],goals=[false,false,false],score=0,lives=3,level=1,best=+(localStorage.getItem(BEST_KEY)||0),running=false,last=0,statusMsg='Press Start to begin.';
+document.getElementById('best').textContent=best;
+resetFrog();buildActors();updateStats();
+function resetFrog(){frog={x:4,y:11,offset:0};}
+function buildActors(){actors=[];lanes.forEach((lane,row)=>{if(lane.type==='road'||lane.type==='water'){let pos=lane.speed>0?-1:COLS+1;lane.len.forEach((len,index)=>{actors.push({row,x:pos-(index*4),len,speed:lane.speed*(1+level*.12),type:lane.type});pos+=lane.speed>0?-4.5:4.5;});}});} 
+function startGame(){score=0;lives=3;level=1;goals=[false,false,false];statusMsg='Guide frogs to all three pads.';resetFrog();buildActors();running=true;last=0;updateStats();document.getElementById('overlay').style.display='none';draw();requestAnimationFrame(loop);} 
+function updateStats(){document.getElementById('score').textContent=score;document.getElementById('lives').textContent=lives;document.getElementById('level').textContent=level;document.getElementById('best').textContent=best;document.getElementById('status').textContent=statusMsg;}
+function move(dx,dy){if(!running)return;frog.x=Math.max(0,Math.min(COLS-1,frog.x+dx));frog.y=Math.max(0,Math.min(ROWS-1,frog.y+dy));score+=5;if(score>best){best=score;localStorage.setItem(BEST_KEY,String(best));}checkImmediate();updateStats();}
+function loseLife(reason){lives--;statusMsg=reason;resetFrog();if(lives<=0){gameOver('The river and traffic proved too much this round.');}updateStats();}
+function gameOver(text){running=false;const overlay=document.getElementById('overlay');overlay.innerHTML=`<h2>Game Over</h2><p>${text}</p><button class="btn" id="overlay-btn">Play Again</button>`;overlay.style.display='flex';document.getElementById('overlay-btn').addEventListener('click',startGame);} 
+function completeGoal(index){if(goals[index]){loseLife('That lily pad is already occupied.');return;}goals[index]=true;score+=100;statusMsg='Safe landing!';if(goals.every(Boolean)){level++;goals=[false,false,false];buildActors();statusMsg=`Level ${level}: traffic speeds up.`;}resetFrog();if(score>best){best=score;localStorage.setItem(BEST_KEY,String(best));}updateStats();}
+function checkImmediate(){if(frog.y===0){const slot=Math.floor(frog.x/3.34);completeGoal(Math.max(0,Math.min(2,slot)));}}
+function update(dt){actors.forEach(a=>{a.x+=a.speed*dt/1000;if(a.speed>0&&a.x-a.len>COLS+1)a.x=-2;if(a.speed<0&&a.x+1<-2)a.x=COLS+1;});const lane=lanes[Math.round(frog.y)];if(lane.type==='road'){const hit=actors.some(a=>a.row===frog.y&&frog.x+0.1<a.x+a.len&&frog.x+0.9>a.x);if(hit)loseLife('Splat! Watch for traffic.');}
+if(lane.type==='water'){const log=actors.find(a=>a.row===frog.y&&frog.x+0.1<a.x+a.len&&frog.x+0.9>a.x);if(!log){loseLife('Splash! Find a log.');}else{frog.offset+=log.speed*dt/1000;const shifted=frog.x+frog.offset;if(shifted<0||shifted>COLS-1)loseLife('The current dragged you away.');else frog.x=shifted;frog.offset=0;}}
+}
+function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);lanes.forEach((lane,row)=>{ctx.fillStyle=lane.type==='water'?'#38bdf8':lane.type==='road'?'#6b7280':lane.type==='goal'?'#166534':'#86efac';ctx.fillRect(0,row*CELL,canvas.width,CELL);ctx.strokeStyle='rgba(255,255,255,.2)';ctx.strokeRect(0,row*CELL,canvas.width,CELL);});
+[1,4,7].forEach((x,i)=>{ctx.fillStyle=goals[i]?'#facc15':'#4ade80';ctx.beginPath();ctx.arc(x*CELL+22,22,13,0,Math.PI*2);ctx.fill();});
+actors.forEach(a=>{const y=a.row*CELL+6;ctx.fillStyle=a.type==='road'?'#ef4444':'#8b5a2b';ctx.fillRect(a.x*CELL,y,a.len*CELL-6,CELL-12);if(a.type==='road'){ctx.fillStyle='#111827';ctx.fillRect(a.x*CELL+8,y+8,12,12);ctx.fillRect(a.x*CELL+a.len*CELL-26,y+8,12,12);}});
+ctx.fillStyle='#22c55e';ctx.beginPath();ctx.arc(frog.x*CELL+22,frog.y*CELL+22,16,0,Math.PI*2);ctx.fill();ctx.fillStyle='#111827';ctx.beginPath();ctx.arc(frog.x*CELL+16,frog.y*CELL+18,3,0,Math.PI*2);ctx.arc(frog.x*CELL+28,frog.y*CELL+18,3,0,Math.PI*2);ctx.fill();}
+function loop(ts){if(!running)return;const dt=ts-last||16;last=ts;update(dt);draw();requestAnimationFrame(loop);} 
+document.addEventListener('keydown',e=>{if(document.getElementById('overlay').style.display!=='none'&&(e.key==='Enter'||e.key===' ')){e.preventDefault();document.getElementById('overlay-btn').click();return;}const map={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1],a:[-1,0],d:[1,0],w:[0,-1],s:[0,1],A:[-1,0],D:[1,0],W:[0,-1],S:[0,1]};if(map[e.key]){e.preventDefault();move(...map[e.key]);}});
+let touchStart=null;canvas.addEventListener('touchstart',e=>{const t=e.touches[0];touchStart={x:t.clientX,y:t.clientY};},{passive:true});canvas.addEventListener('touchend',e=>{if(!touchStart)return;const t=e.changedTouches[0],dx=t.clientX-touchStart.x,dy=t.clientY-touchStart.y;if(Math.abs(dx)>Math.abs(dy)){if(dx>20)move(1,0);else if(dx<-20)move(-1,0);}else{if(dy>20)move(0,1);else if(dy<-20)move(0,-1);}touchStart=null;},{passive:true});
+draw();
+</script>
+</body>
+</html>

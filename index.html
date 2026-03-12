@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Game Portal — 110 Free Web Games</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+  <div class="header-inner">
+    <a class="logo" href="#">
+      <span class="logo-icon">🎮</span>
+      <span class="logo-text">Game<span>Portal</span></span>
+    </a>
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input id="search" type="search" placeholder="Search games..." autocomplete="off" />
+    </div>
+    <div class="header-count" id="count"></div>
+  </div>
+</header>
+
+<!-- Category Tabs -->
+<nav class="category-bar">
+  <div class="category-inner" id="cat-bar"></div>
+</nav>
+
+<!-- Main -->
+<main class="main">
+  <div class="section-label" id="section-label">All Games</div>
+  <div class="game-grid" id="grid"></div>
+</main>
+
+<!-- Footer -->
+<footer class="footer">
+  110 free browser games — no download, no login &nbsp;·&nbsp; Built with pure HTML, CSS & JS
+</footer>
+
+<script src="games.js"></script>
+<script>
+  let activeCategory = 'All';
+  let searchQuery = '';
+
+  // Build category buttons
+  const catBar = document.getElementById('cat-bar');
+  const allCats = ['All', ...CATEGORIES];
+  allCats.forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'cat-btn' + (cat === 'All' ? ' active' : '');
+    btn.textContent = cat;
+    btn.addEventListener('click', () => {
+      activeCategory = cat;
+      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      render();
+    });
+    catBar.appendChild(btn);
+  });
+
+  // Search
+  const searchEl = document.getElementById('search');
+  searchEl.addEventListener('input', e => {
+    searchQuery = e.target.value.trim().toLowerCase();
+    render();
+  });
+
+  // Render
+  function render() {
+    const filtered = GAMES.filter(g => {
+      const matchCat = activeCategory === 'All' || g.category === activeCategory;
+      const matchSearch = !searchQuery ||
+        g.name.toLowerCase().includes(searchQuery) ||
+        g.description.toLowerCase().includes(searchQuery) ||
+        g.category.toLowerCase().includes(searchQuery);
+      return matchCat && matchSearch;
+    });
+
+    const grid = document.getElementById('grid');
+    const count = document.getElementById('count');
+    const label = document.getElementById('section-label');
+
+    count.textContent = `${filtered.length} / ${GAMES.length} games`;
+
+    if (searchQuery) {
+      label.textContent = `Results for "${searchQuery}"`;
+    } else if (activeCategory !== 'All') {
+      label.textContent = activeCategory;
+    } else {
+      label.textContent = 'All Games';
+    }
+
+    if (filtered.length === 0) {
+      grid.innerHTML = `
+        <div class="empty">
+          <div class="empty-icon">🕹️</div>
+          <h3>No games found</h3>
+          <p>Try a different search term or category.</p>
+        </div>`;
+      return;
+    }
+
+    grid.innerHTML = filtered.map(g => `
+      <a class="game-card" href="games/${g.slug}/" title="${g.name}">
+        <div class="card-thumb">${g.emoji}</div>
+        <div class="card-body">
+          <div class="card-name">${g.name}</div>
+          <div class="card-desc">${g.description}</div>
+          <div class="card-footer">
+            <span class="badge badge-${g.difficulty}">${g.difficulty}</span>
+            <span class="card-category">${g.category}</span>
+          </div>
+          <span class="card-play">Play Now</span>
+        </div>
+      </a>
+    `).join('');
+  }
+
+  render();
+</script>
+</body>
+</html>
