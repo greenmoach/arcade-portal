@@ -45,12 +45,12 @@ select{padding:8px 12px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:1
 <div class="msg" id="msg"></div>
 
 <div class="controls">
-  <select id="size" onchange="newGame()">
+  <select id="size">
     <option value="4">4×4 (8 pairs)</option>
     <option value="5">5×4 (10 pairs)</option>
     <option value="6">6×4 (12 pairs)</option>
   </select>
-  <button class="btn" onclick="newGame()">New Game</button>
+  <button class="btn" id="new-game-btn">New Game</button>
 </div>
 
 <script>
@@ -112,6 +112,8 @@ function flipCard(card){
 
 const best=localStorage.getItem('memBest');
 if(best)document.getElementById('best').textContent=best;
+document.getElementById('size').addEventListener('change',newGame);
+document.getElementById('new-game-btn').addEventListener('click',newGame);
 newGame();
 </script>
 </body>

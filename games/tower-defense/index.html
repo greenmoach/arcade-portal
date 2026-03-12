@@ -34,14 +34,15 @@
 <p class="hint">Keyboard: arrows + Enter + Space · Touch: tap empty tiles to build, button to start waves</p>
 <script>
 const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
+if(!ctx) throw new Error('Canvas 2D context unavailable');
 const CELL=60,COLS=9,ROWS=6,BEST_KEY='towerDefenseBest';
 const path=[{x:0,y:2},{x:1,y:2},{x:2,y:2},{x:2,y:1},{x:3,y:1},{x:4,y:1},{x:4,y:3},{x:5,y:3},{x:6,y:3},{x:6,y:4},{x:7,y:4},{x:8,y:4}];
 const pathSet=new Set(path.map(p=>`${p.x},${p.y}`));
-let towers=[],enemies=[],shots=[],cursor={x:0,y:0},gold=60,lives=10,wave=0,best=+(localStorage.getItem(BEST_KEY)||0),remaining=0,spawnTimer=0,waveActive=false,running=false,last=0,statusMsg='Protect the crystal road.';
+let towers=[],enemies=[],shots=[],cursor={x:0,y:0},gold=60,lives=10,wave=0,best=+(localStorage.getItem(BEST_KEY)||0),remaining=0,spawnTimer=0,waveActive=false,running=false,last=0,rafId=0,statusMsg='Protect the crystal road.';
 document.getElementById('best').textContent=best;
 function updateStats(){gold=Math.max(0,gold);document.getElementById('gold').textContent=gold;document.getElementById('lives').textContent=lives;document.getElementById('wave').textContent=wave;document.getElementById('best').textContent=best;document.getElementById('status').textContent=statusMsg;}
 function getPoint(progress){const i=Math.floor(progress);const t=progress-i;const a=path[Math.min(i,path.length-1)],b=path[Math.min(i+1,path.length-1)];return{x:(a.x+(b.x-a.x)*t+.5)*CELL,y:(a.y+(b.y-a.y)*t+.5)*CELL};}
-function startGame(){towers=[];enemies=[];shots=[];cursor={x:0,y:0};gold=60;lives=10;wave=0;remaining=0;spawnTimer=0;waveActive=false;running=true;last=0;statusMsg='Build wisely, then start the first wave.';document.getElementById('overlay').style.display='none';updateStats();draw();requestAnimationFrame(loop);}
+function startGame(){towers=[];enemies=[];shots=[];cursor={x:0,y:0};gold=60;lives=10;wave=0;remaining=0;spawnTimer=0;waveActive=false;running=true;last=0;statusMsg='Build wisely, then start the first wave.';document.getElementById('overlay').style.display='none';updateStats();draw();cancelAnimationFrame(rafId);rafId=requestAnimationFrame(loop);}
 function startWave(){if(!running||waveActive)return;wave++;remaining=4+wave*2;spawnTimer=.2;waveActive=true;statusMsg=`Wave ${wave} incoming!`;if(wave>best){best=wave;localStorage.setItem(BEST_KEY,String(best));}updateStats();}
 function buildTower(x,y){if(!running)return;if(pathSet.has(`${x},${y}`)){statusMsg='You can only build on grass.';return updateStats();}if(towers.some(t=>t.x===x&&t.y===y)){statusMsg='That tile already has a tower.';return updateStats();}if(gold<20){statusMsg='Not enough gold.';return updateStats();}gold-=20;towers.push({x,y,cooldown:300});statusMsg='Tower placed!';updateStats();}
 function spawnEnemy(){enemies.push({progress:0,speed:0.4+wave*.035,hp:30+wave*10,maxHp:30+wave*10});}
@@ -54,7 +55,7 @@ for(let i=enemies.length-1;i>=0;i--){if(enemies[i].hp<=0)enemies.splice(i,1);}
 for(let i=shots.length-1;i>=0;i--){shots[i].life-=dt;if(shots[i].life<=0)shots.splice(i,1);}
 if(waveActive&&remaining===0&&enemies.length===0){waveActive=false;gold+=10+wave*2;statusMsg='Wave cleared! Press Space or the button for the next wave.';updateStats();}}
 function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++){ctx.fillStyle=pathSet.has(`${x},${y}`)?'#cbd5e1':'#bbf7d0';ctx.fillRect(x*CELL,y*CELL,CELL,CELL);ctx.strokeStyle='rgba(17,24,39,.08)';ctx.strokeRect(x*CELL,y*CELL,CELL,CELL);}ctx.fillStyle='#fbbf24';ctx.beginPath();ctx.arc((path[path.length-1].x+.5)*CELL,(path[path.length-1].y+.5)*CELL,18,0,Math.PI*2);ctx.fill();for(const tower of towers){const cx=(tower.x+.5)*CELL,cy=(tower.y+.5)*CELL;ctx.fillStyle='#6c63ff';ctx.beginPath();ctx.arc(cx,cy,18,0,Math.PI*2);ctx.fill();ctx.fillStyle='#c4b5fd';ctx.beginPath();ctx.arc(cx,cy,9,0,Math.PI*2);ctx.fill();}for(const enemy of enemies){const p=getPoint(enemy.progress);ctx.fillStyle='#ef4444';ctx.beginPath();ctx.arc(p.x,p.y,14,0,Math.PI*2);ctx.fill();ctx.fillStyle='#111827';ctx.fillRect(p.x-16,p.y-22,32,5);ctx.fillStyle='#22c55e';ctx.fillRect(p.x-16,p.y-22,32*(enemy.hp/enemy.maxHp),5);}for(const beam of shots){ctx.strokeStyle='rgba(124,58,237,.55)';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(beam.x1,beam.y1);ctx.lineTo(beam.x2,beam.y2);ctx.stroke();}ctx.strokeStyle='#111827';ctx.lineWidth=3;ctx.strokeRect(cursor.x*CELL+4,cursor.y*CELL+4,CELL-8,CELL-8);} 
-function loop(ts){if(!running)return;const dt=ts-last||16;last=ts;update(dt);updateStats();draw();requestAnimationFrame(loop);} 
+function loop(ts){if(!running)return;const dt=ts-last||16;last=ts;update(dt);updateStats();draw();rafId=requestAnimationFrame(loop);}
 canvas.addEventListener('click',e=>{const r=canvas.getBoundingClientRect(),x=Math.floor((e.clientX-r.left)/(r.width/COLS)),y=Math.floor((e.clientY-r.top)/(r.height/ROWS));cursor={x:Math.max(0,Math.min(COLS-1,x)),y:Math.max(0,Math.min(ROWS-1,y))};buildTower(cursor.x,cursor.y);draw();});
 document.getElementById('wave-btn').addEventListener('click',startWave);
 document.getElementById('overlay-btn').addEventListener('click',startGame);

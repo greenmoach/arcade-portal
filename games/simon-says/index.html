@@ -46,7 +46,7 @@ h1{margin:20px 0 4px;font-size:24px;font-weight:700}
   <div class="overlay" id="overlay">
     <h2>🧠 Simon Says</h2>
     <p>Tap the pads or use keys 1–4 after the sequence finishes playing.</p>
-    <button class="btn" id="overlay-btn" onclick="startGame()">Start Game</button>
+    <button class="btn" id="overlay-btn">Start Game</button>
   </div>
 </div>
 <p class="hint">Keys 1 / 2 / 3 / 4 also work · Taps work on mobile</p>
@@ -139,6 +139,7 @@ document.addEventListener('keydown',e=>{
   if(map[e.key]!==undefined){e.preventDefault();pressPad(map[e.key]);}
 });
 
+document.getElementById('overlay-btn').addEventListener('click',startGame);
 buildPads();
 </script>
 </body>

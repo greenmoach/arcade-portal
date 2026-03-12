@@ -22,17 +22,17 @@
   <div class="overlay" id="overlay">
     <h2>📦 Sokoban</h2>
     <p>Use arrow keys or the on-screen pad to move. Push boxes onto all three targets to win the level.</p>
-    <button class="btn" id="overlay-btn" onclick="startGame()">Start Game</button>
+    <button class="btn" id="overlay-btn">Start Game</button>
   </div>
   <div class="status" id="status">Press Start to begin.</div>
-  <div class="controls"><button class="btn btn-outline" onclick="startGame()">Reset Level</button></div>
+  <div class="controls"><button class="btn btn-outline" id="reset-btn">Reset Level</button></div>
   <div class="touch-pad">
     <button class="touch-btn blank" aria-hidden="true"></button>
-    <button class="touch-btn" onclick="move(0,-1)">↑</button>
+    <button class="touch-btn" id="touch-up">↑</button>
     <button class="touch-btn blank" aria-hidden="true"></button>
-    <button class="touch-btn" onclick="move(-1,0)">←</button>
-    <button class="touch-btn" onclick="move(0,1)">↓</button>
-    <button class="touch-btn" onclick="move(1,0)">→</button>
+    <button class="touch-btn" id="touch-left">←</button>
+    <button class="touch-btn" id="touch-down">↓</button>
+    <button class="touch-btn" id="touch-right">→</button>
   </div>
 </div>
 <p class="hint">Arrow keys / WASD move · Tap the pad on touch screens</p>
@@ -95,6 +95,12 @@ function checkWin(){
   if(!allOnGoals)return;
   active=false;if(!best||pushCount<best){best=pushCount;localStorage.setItem(BEST_KEY,String(best));}bestEl.textContent=best;statusEl.textContent=`Level complete in ${pushCount} pushes!`;overlay.innerHTML=`<h2>🎉 Warehouse Cleared</h2><p>You solved the room in ${movesCount} moves and ${pushCount} pushes.</p><button class="btn" id="overlay-btn">Play Again</button>`;overlay.style.display='flex';document.getElementById('overlay-btn').addEventListener('click',loadLevel);
 }
+document.getElementById('overlay-btn').addEventListener('click',startGame);
+document.getElementById('reset-btn').addEventListener('click',startGame);
+document.getElementById('touch-up').addEventListener('click',()=>move(0,-1));
+document.getElementById('touch-left').addEventListener('click',()=>move(-1,0));
+document.getElementById('touch-down').addEventListener('click',()=>move(0,1));
+document.getElementById('touch-right').addEventListener('click',()=>move(1,0));
 document.addEventListener('keydown',e=>{if(overlay.style.display!=='none'&&(e.key==='Enter'||e.key===' ')){e.preventDefault();document.getElementById('overlay-btn').click();return;}const map={ArrowUp:[0,-1],ArrowDown:[0,1],ArrowLeft:[-1,0],ArrowRight:[1,0],w:[0,-1],a:[-1,0],s:[0,1],d:[1,0],W:[0,-1],A:[-1,0],S:[0,1],D:[1,0]};if(map[e.key]){e.preventDefault();move(...map[e.key]);}});
 loadLevel();overlay.style.display='flex';statusEl.textContent='Press Start to begin.';
 </script>

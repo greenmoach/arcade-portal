@@ -38,7 +38,7 @@ h1{margin:20px 0 4px;font-size:24px;font-weight:700}
 <canvas id="board-canvas" width="360" height="360"></canvas>
 <div class="pieces-row" id="pieces-row"></div>
 <div class="msg" id="msg"></div>
-<button class="btn" onclick="newGame()">New Game</button>
+<button class="btn" id="new-game-btn">New Game</button>
 <p class="hint">Drag pieces onto the board · Fill rows/columns to clear</p>
 
 <script>
@@ -104,6 +104,7 @@ function spawnPieces(){
 
 function drawPieceOnCanvas(cv,shape,color,sz){
   const ctx=cv.getContext('2d');
+  if(!ctx) return;
   ctx.clearRect(0,0,cv.width,cv.height);
   shape.forEach((row,r)=>row.forEach((v,c)=>{
     if(!v)return;
@@ -230,6 +231,7 @@ function setupDrag(cv,piece,sz){
   });
 }
 
+document.getElementById('new-game-btn').addEventListener('click', newGame);
 newGame();
 </script>
 </body>

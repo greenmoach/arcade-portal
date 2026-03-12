@@ -20,11 +20,11 @@
 </div>
 <div class="game">
   <div class="board" id="board"></div>
-  <div class="controls"><button class="btn" onclick="startGame()">New Layout</button></div>
+  <div class="controls"><button class="btn" id="new-layout-btn">New Layout</button></div>
   <div class="overlay" id="overlay">
     <h2>🀄 Mahjong</h2>
     <p>Select two matching free tiles. A tile is free when nothing rests on top of it and its left or right edge is open. Arrow keys cycle through free choices and Enter selects.</p>
-    <button class="btn" id="overlay-btn" onclick="startGame()">Start Layout</button>
+    <button class="btn" id="overlay-btn">Start Layout</button>
   </div>
   <div class="status" id="status">Press Start to begin.</div>
 </div>
@@ -48,6 +48,8 @@ function selectTile(id){if(!running)return;const tile=tiles.find(t=>t.id===id);i
 function render(){boardEl.innerHTML='';const free=freeTiles().sort((a,b)=>a.z-b.z||a.x-b.x);syncCursor();free.forEach((tile,i)=>tile.cursorIndex=i);tiles.filter(t=>!t.removed).sort((a,b)=>a.z-b.z||a.x-b.x).forEach(tile=>{const btn=document.createElement('button');const scale=window.innerWidth<640?46:62,raise=window.innerWidth<640?14:18,leftBase=window.innerWidth<640?18:24;btn.className='tile'+(isFree(tile)?' free':'')+(selected&&selected.id===tile.id?' selected':'')+(free[cursor]&&free[cursor].id===tile.id?' cursor':'');btn.style.left=(leftBase+tile.x*(scale*0.62)+tile.z*10)+'px';btn.style.top=(150-tile.z*raise)+'px';btn.style.zIndex=String(10+tile.z);btn.textContent=tile.symbol;btn.onclick=()=>selectTile(tile.id);boardEl.appendChild(btn);});updateStats();}
 function startGame(){buildLayout();running=true;overlay.style.display='none';statusEl.textContent='Match any two free identical tiles.';clearInterval(timer);timer=setInterval(()=>{if(running)updateStats();},1000);render();}
 document.addEventListener('keydown',e=>{if(overlay.style.display!=='none'&&(e.key==='Enter'||e.key===' ')){e.preventDefault();document.getElementById('overlay-btn').click();return;}if(!running)return;const free=freeTiles().sort((a,b)=>a.z-b.z||a.x-b.x);if(!free.length)return;if(['ArrowRight','ArrowDown'].includes(e.key)){e.preventDefault();cursor=(cursor+1)%free.length;render();return;}if(['ArrowLeft','ArrowUp'].includes(e.key)){e.preventDefault();cursor=(cursor-1+free.length)%free.length;render();return;}if(e.key==='Enter'||e.key===' '){e.preventDefault();selectTile(free[cursor].id);}});
+document.getElementById('overlay-btn').addEventListener('click',startGame);
+document.getElementById('new-layout-btn').addEventListener('click',startGame);
 buildLayout();updateStats();render();
 </script>
 </body>

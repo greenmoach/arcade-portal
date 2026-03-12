@@ -20,17 +20,19 @@
 </div>
 <div class="game">
   <div class="board" id="board"></div>
-  <div class="controls"><button class="btn" onclick="startGame()">New Match</button></div>
+  <div class="controls"><button class="btn" id="new-match-btn">New Match</button></div>
   <div class="overlay" id="overlay">
     <h2>♟️ Chess</h2>
     <p>Arrow keys move the cursor and Enter selects or moves. Touch players can tap a piece, then tap its destination. Queens auto-promote; castling and en passant are omitted for faster local play.</p>
-    <button class="btn" id="overlay-btn" onclick="startGame()">Start Match</button>
+    <button class="btn" id="overlay-btn">Start Match</button>
   </div>
   <div class="status" id="status">Press Start to begin.</div>
 </div>
 <p class="hint">Arrow keys + Enter · Click/tap squares · Checkmate and stalemate are enforced</p>
 <script>
 const boardEl=document.getElementById('board'),overlay=document.getElementById('overlay'),statusEl=document.getElementById('status');
+document.getElementById('new-match-btn').addEventListener('click',startGame);
+document.getElementById('overlay-btn').addEventListener('click',startGame);
 const WINS_KEY='chessWins';
 const START=['rnbqkbnr','pppppppp','........','........','........','........','PPPPPPPP','RNBQKBNR'];
 const ICONS={K:'♔',Q:'♕',R:'♖',B:'♗',N:'♘',P:'♙',k:'♚',q:'♛',r:'♜',b:'♝',n:'♞',p:'♟'};

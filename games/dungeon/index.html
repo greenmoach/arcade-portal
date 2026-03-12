@@ -17,6 +17,7 @@
 <p class="hint">Arrow keys / WASD to move · Swipe to move on touch devices · Every move advances the monsters</p>
 <script>
 const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
+if(!ctx) throw new Error('Canvas 2D context not available');
 const CELL=44,SIZE=10,BEST_KEY='dungeonDelverBest';
 let state,statusMsg='Press Start to begin.',best=+(localStorage.getItem(BEST_KEY)||1),running=false;
 document.getElementById('best').textContent=String(best);

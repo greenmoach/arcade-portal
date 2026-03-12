@@ -52,7 +52,7 @@ select{padding:8px 12px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:1
     <option value="6">6 Colors</option>
     <option value="7">7 Colors (Hard)</option>
   </select>
-  <button class="btn btn-outline" onclick="newGame()">New Game</button>
+  <button class="btn btn-outline" id="new-game-btn">New Game</button>
 </div>
 <p class="hint">Click a tube to pick up top color, click another tube to pour</p>
 
@@ -148,6 +148,7 @@ function clickTube(i){
   }
 }
 
+document.getElementById('new-game-btn').addEventListener('click',newGame);
 newGame();
 </script>
 </body>

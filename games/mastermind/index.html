@@ -22,11 +22,11 @@
   <div class="guess-row" id="current-row"></div>
   <div class="history" id="history"></div>
   <div class="status" id="status">Press Start to begin.</div>
-  <div class="controls"><button class="btn" onclick="submitGuess()">Submit Guess</button><button class="btn btn-outline" onclick="resetRound()">New Code</button></div>
+  <div class="controls"><button class="btn" id="submit-btn">Submit Guess</button><button class="btn btn-outline" id="new-code-btn">New Code</button></div>
   <div class="overlay" id="overlay">
     <h2>🧠 Mastermind</h2>
     <p>Select a color, then click a peg to place it. Use digits 1-8, arrow keys to move between pegs, and Enter to submit.</p>
-    <button class="btn" id="overlay-btn" onclick="startGame()">Start Game</button>
+    <button class="btn" id="overlay-btn">Start Game</button>
   </div>
 </div>
 <p class="hint">Digits 1–8 choose colors · Arrow keys move peg focus · Enter submits</p>
@@ -54,6 +54,9 @@ function scoreGuess(guess){const code=[...secret],attempt=[...guess];let hits=0,
 function submitGuess(){if(!active)return;if(current.some(v=>v===null)){statusEl.textContent='Fill all four pegs first.';return;}const guess=[...current];const result=scoreGuess(guess);addHistoryRow(guess,result);if(result.hits===4){active=false;wins++;winsEl.textContent=wins;if(!best||guessNumber<best){best=guessNumber;localStorage.setItem(BEST_KEY,String(best));}bestEl.textContent=best;statusEl.textContent=`Code cracked in ${guessNumber} guesses!`;overlay.innerHTML=`<h2>🎉 Code Cracked</h2><p>You solved the code in ${guessNumber} guesses. Can you do it even faster?</p><button class="btn" id="overlay-btn">Play Again</button>`;overlay.style.display='flex';document.getElementById('overlay-btn').addEventListener('click',resetRound);return;}guessNumber++;if(guessNumber>10){active=false;statusEl.textContent='Out of guesses!';const reveal=secret.map(i=>`<span style="display:inline-block;width:18px;height:18px;border-radius:50%;background:${COLORS[i]};margin:0 2px;vertical-align:middle"></span>`).join('');overlay.innerHTML=`<h2>🔐 Code Escaped</h2><p>The secret was <span>${reveal}</span>. Take another shot!</p><button class="btn" id="overlay-btn">Try Again</button>`;overlay.style.display='flex';document.getElementById('overlay-btn').addEventListener('click',resetRound);return;}current=[null,null,null,null];focusIndex=0;statusEl.textContent=`Guess ${guessNumber}: use the hints to refine your code.`;renderCurrent();}
 function addHistoryRow(guess,result){const row=document.createElement('div');row.className='history-row';guess.forEach(i=>{const peg=document.createElement('div');peg.className='slot filled';peg.style.width='44px';peg.style.height='44px';peg.style.cursor='default';peg.style.background=COLORS[i];row.appendChild(peg);});const feedback=document.createElement('div');feedback.className='feedback';const list=[];for(let i=0;i<result.hits;i++)list.push('hit');for(let i=0;i<result.near;i++)list.push('near');while(list.length<4)list.push('');list.forEach(type=>{const peg=document.createElement('div');peg.className='peg'+(type?` ${type}`:'');feedback.appendChild(peg);});row.appendChild(feedback);historyEl.prepend(row);}
 document.addEventListener('keydown',e=>{if(overlay.style.display!=='none'&&(e.key==='Enter'||e.key===' ')){e.preventDefault();document.getElementById('overlay-btn').click();return;}if(!active)return;if(/^[1-8]$/.test(e.key)){selectedColor=+e.key-1;renderPalette();setPeg(focusIndex,selectedColor);e.preventDefault();return;}if(e.key==='ArrowLeft'){focusIndex=Math.max(0,focusIndex-1);renderCurrent();e.preventDefault();}else if(e.key==='ArrowRight'){focusIndex=Math.min(3,focusIndex+1);renderCurrent();e.preventDefault();}else if(e.key==='ArrowUp'){selectedColor=(selectedColor+COLORS.length-1)%COLORS.length;renderPalette();e.preventDefault();}else if(e.key==='ArrowDown'){selectedColor=(selectedColor+1)%COLORS.length;renderPalette();e.preventDefault();}else if(e.key===' '){setPeg(focusIndex,selectedColor);e.preventDefault();}else if(e.key==='Backspace'||e.key==='Delete'){current[focusIndex]=null;renderCurrent();e.preventDefault();}else if(e.key==='Enter'){submitGuess();e.preventDefault();}});
+document.getElementById('overlay-btn').addEventListener('click',startGame);
+document.getElementById('submit-btn').addEventListener('click',submitGuess);
+document.getElementById('new-code-btn').addEventListener('click',resetRound);
 buildPalette();renderCurrent();
 </script>
 </body>

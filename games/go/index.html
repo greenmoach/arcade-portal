@@ -21,13 +21,13 @@
 <div class="game">
   <div class="board" id="board"></div>
   <div class="controls">
-    <button class="btn" onclick="passTurn()">Pass</button>
-    <button class="btn" onclick="startGame()">New Match</button>
+    <button class="btn" id="pass-btn">Pass</button>
+    <button class="btn" id="new-match-btn">New Match</button>
   </div>
   <div class="overlay" id="overlay">
     <h2>⚪ Go</h2>
     <p>Arrow keys move the cursor and Enter places a stone. Space passes. Two passes end the round, then stones plus territory decide the winner.</p>
-    <button class="btn" id="overlay-btn" onclick="startGame()">Start Match</button>
+    <button class="btn" id="overlay-btn">Start Match</button>
   </div>
   <div class="status" id="status">Press Start to begin.</div>
 </div>
@@ -53,6 +53,9 @@ function passTurn(){if(!running)return;passStreak++;if(passStreak>=2){endGame();
 function render(){boardEl.innerHTML='';for(let r=0;r<SIZE;r++)for(let c=0;c<SIZE;c++){const btn=document.createElement('button');btn.className='cell'+(cursor.r===r&&cursor.c===c?' cursor':'');btn.onclick=()=>play(r,c);if([2,4,6].includes(r)&&[2,4,6].includes(c)&&!board[r][c]){const dot=document.createElement('div');dot.className='star';dot.textContent='·';btn.appendChild(dot);}if(board[r][c]){const stone=document.createElement('div');stone.className='stone '+board[r][c];btn.appendChild(stone);}boardEl.appendChild(btn);}}
 function startGame(){board=freshBoard();cursor={r:4,c:4};turn='b';running=true;passStreak=0;captures={b:0,w:0};history=[hashBoard(board)];overlay.style.display='none';statusEl.textContent='Black plays first.';updateStats();render();}
 document.addEventListener('keydown',e=>{if(overlay.style.display!=='none'&&(e.key==='Enter'||e.key===' ')){e.preventDefault();document.getElementById('overlay-btn').click();return;}if(!running)return;const keys={ArrowLeft:[0,-1],ArrowRight:[0,1],ArrowUp:[-1,0],ArrowDown:[1,0]};if(keys[e.key]){e.preventDefault();cursor={r:(cursor.r+keys[e.key][0]+SIZE)%SIZE,c:(cursor.c+keys[e.key][1]+SIZE)%SIZE};render();return;}if(e.key==='Enter'){e.preventDefault();play(cursor.r,cursor.c);return;}if(e.key===' '){e.preventDefault();passTurn();}});
+document.getElementById('overlay-btn').addEventListener('click',startGame);
+document.getElementById('pass-btn').addEventListener('click',passTurn);
+document.getElementById('new-match-btn').addEventListener('click',startGame);
 board=freshBoard();updateStats();render();
 </script>
 </body>

@@ -28,6 +28,7 @@ const holes=[
   {ball:{x:100,y:320},cup:{x:600,y:80},walls:[{x:210,y:120,w:260,h:18},{x:210,y:120,w:18,h:180},{x:470,y:120,w:18,h:180}]}
 ];
 const canvas=document.getElementById('canvas'),ctx=canvas.getContext('2d'),overlay=document.getElementById('overlay'),statusEl=document.getElementById('status');
+if(!ctx) return;
 let holeIndex=0,ball,velocity={x:0,y:0},angle=-.5,power=7,strokes=0,total=0,active=false,dragStart=null,raf=0;
 function bestLabel(){const best=+(localStorage.getItem(BEST_KEY)||0);return best?String(best):'—';}
 function loadHole(resetStrokes=false){const hole=holes[holeIndex];ball={x:hole.ball.x,y:hole.ball.y};velocity={x:0,y:0};angle=-.5;power=7;if(resetStrokes)strokes=0;document.getElementById('hole').textContent=String(holeIndex+1);document.getElementById('strokes').textContent=String(total+strokes);document.getElementById('best').textContent=bestLabel();}

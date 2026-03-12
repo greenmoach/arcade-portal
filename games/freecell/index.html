@@ -23,11 +23,11 @@
   <div class="top-row" id="top-row"></div>
   <div class="label-row"><div>Col 1</div><div>Col 2</div><div>Col 3</div><div>Col 4</div><div>Col 5</div><div>Col 6</div><div>Col 7</div><div>Col 8</div></div>
   <div class="cascades" id="cascades"></div>
-  <div class="controls"><button class="btn" onclick="startGame()">New Deal</button></div>
+  <div class="controls"><button class="btn" id="new-deal-btn">New Deal</button></div>
   <div class="overlay" id="overlay">
     <h2>🃏 FreeCell</h2>
     <p>Tap a top card to select it, then tap a free cell, foundation, or another cascade. Arrow keys move between slots and Enter performs pile-level keyboard moves.</p>
-    <button class="btn" id="overlay-btn" onclick="startGame()">Start Deal</button>
+    <button class="btn" id="overlay-btn">Start Deal</button>
   </div>
   <div class="status" id="status">Press Start to begin.</div>
 </div>
@@ -56,6 +56,8 @@ function render(){topRow.innerHTML='';cascadesEl.innerHTML='';for(let i=0;i<8;i+
 function cardNode(card,top,handler){const el=document.createElement('button');el.className='card '+color(card);el.style.top=top+'px';el.innerHTML=`<span class="small">${card.r}</span>${card.s}<span class="suit">${card.s}</span>`;el.onclick=e=>{e.stopPropagation();handler();};return el;}
 function startGame(){const deck=makeDeck();freeCells=[null,null,null,null];foundations=[[],[],[],[]];cascades=[[],[],[],[],[],[],[],[]];deck.forEach((card,i)=>cascades[i%8].push(card));selected=null;moves=0;cursor={row:0,index:0};running=true;startTime=Date.now();overlay.style.display='none';statusEl.textContent='Move all cards home to the foundations.';clearInterval(timer);timer=setInterval(()=>{if(running)updateStats();},1000);updateStats();render();}
 document.addEventListener('keydown',e=>{if(overlay.style.display!=='none'&&(e.key==='Enter'||e.key===' ')){e.preventDefault();document.getElementById('overlay-btn').click();return;}if(!running)return;if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)){e.preventDefault();if(e.key==='ArrowLeft')cursor.index=(cursor.index+7)%8;else if(e.key==='ArrowRight')cursor.index=(cursor.index+1)%8;else cursor.row=1-cursor.row;render();return;}if(e.key==='Enter'||e.key===' '){e.preventDefault();if(cursor.row===0){cursor.index<4?onTopSlot('free',cursor.index):onTopSlot('foundation',cursor.index-4);}else onCascade(cursor.index);}});
+document.getElementById('new-deal-btn').addEventListener('click',startGame);
+document.getElementById('overlay-btn').addEventListener('click',startGame);
 updateStats();render();
 </script>
 </body>

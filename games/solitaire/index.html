@@ -23,11 +23,11 @@
   <div class="top-row" id="top-row"></div>
   <div class="label-row"><div>Col 1</div><div>Col 2</div><div>Col 3</div><div>Col 4</div><div>Col 5</div><div>Col 6</div><div>Col 7</div></div>
   <div class="tableau" id="tableau"></div>
-  <div class="controls"><button class="btn" onclick="startGame()">New Deal</button></div>
+  <div class="controls"><button class="btn" id="new-deal-btn">New Deal</button></div>
   <div class="overlay" id="overlay">
     <h2>🂡 Solitaire</h2>
     <p>Tap cards to select stacks, build down in alternating colors on the tableau, and move aces upward to the four foundations. Keyboard support moves between piles and operates the top visible stack or card.</p>
-    <button class="btn" id="overlay-btn" onclick="startGame()">Start Deal</button>
+    <button class="btn" id="overlay-btn">Start Deal</button>
   </div>
   <div class="status" id="status">Press Start to begin.</div>
 </div>
@@ -58,6 +58,8 @@ function onTableau(index,depth){if(!running)return;if(selected&&moveToTableau(in
 function cardNode(card,top,handler,extra=''){const el=document.createElement('button');el.className='card '+(card.up?card.color:'down')+extra;el.style.top=top+'px';if(card.up)el.innerHTML=`<span class="small">${card.r}</span>${card.s}<span class="suit">${card.s}</span>`;else el.textContent='🂠';el.onclick=e=>{e.stopPropagation();handler();};return el;}
 function render(){topRow.innerHTML='';tableauEl.innerHTML='';for(let i=0;i<7;i++){const slot=document.createElement('div');slot.className='slot'+(cursor.row===0&&cursor.index===i?' cursor':'')+(((i===1&&zoneSelected('waste',0))||(i>=2&&i<=5&&zoneSelected('foundation',i-2)))?' selected':'');slot.onclick=()=>topAction(i);if(i===0&&stock.length)slot.appendChild(cardNode({up:false},0,()=>topAction(0)));if(i===1&&waste.length)slot.appendChild(cardNode(waste[waste.length-1],0,()=>topAction(1)));if(i>=2&&i<=5&&foundations[i-2].length)slot.appendChild(cardNode(foundations[i-2][foundations[i-2].length-1],0,()=>topAction(i)));if(i===6){const badge=document.createElement('button');badge.className='card down';badge.style.top='0px';badge.textContent='↺';badge.onclick=e=>{e.stopPropagation();startGame();};slot.appendChild(badge);}topRow.appendChild(slot);}for(let i=0;i<7;i++){const pile=document.createElement('div');pile.className='pile'+(cursor.row===1&&cursor.index===i?' cursor':'')+(zoneSelected('tableau',i)?' selected':'');pile.onclick=()=>onTableau(i);tableau[i].forEach((card,idx)=>pile.appendChild(cardNode(card,idx*26,()=>onTableau(i,idx),selected&&selected.type==='tableau'&&selected.index===i&&selected.depth===idx?' selected':'')));tableauEl.appendChild(pile);}updateStats();}
 function startGame(){const deck=makeDeck();stock=[];waste=[];foundations=[[],[],[],[]];tableau=[[],[],[],[],[],[],[]];for(let i=0;i<7;i++)for(let j=0;j<=i;j++){const card=deck.pop();card.up=j===i;tableau[i].push(card);}stock=deck.map(card=>({...card,up:false}));selected=null;moves=0;cursor={row:0,index:0};running=true;startTime=Date.now();overlay.style.display='none';statusEl.textContent='Clear the tableau and build the four homes.';clearInterval(timer);timer=setInterval(()=>{if(running)updateStats();},1000);updateStats();render();}
+document.getElementById('new-deal-btn').addEventListener('click',startGame);
+document.getElementById('overlay-btn').addEventListener('click',startGame);
 document.addEventListener('keydown',e=>{if(overlay.style.display!=='none'&&(e.key==='Enter'||e.key===' ')){e.preventDefault();document.getElementById('overlay-btn').click();return;}if(!running)return;if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)){e.preventDefault();if(e.key==='ArrowLeft')cursor.index=(cursor.index+6)%7;else if(e.key==='ArrowRight')cursor.index=(cursor.index+1)%7;else cursor.row=1-cursor.row;render();return;}if(e.key==='Enter'||e.key===' '){e.preventDefault();if(cursor.row===0)topAction(cursor.index);else onTableau(cursor.index);}});
 updateStats();render();
 </script>

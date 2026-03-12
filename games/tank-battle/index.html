@@ -25,6 +25,7 @@
 <p class="hint">Keyboard: WASD + Q and arrows + / · Touch: hold the on-screen controls</p>
 <script>
 const canvas=document.getElementById('canvas'),ctx=canvas.getContext('2d'),overlay=document.getElementById('overlay'),statusEl=document.getElementById('status');
+if(!ctx) throw new Error('Canvas 2D context unavailable');
 const walls=[{x:240,y:80,w:220,h:20},{x:100,y:190,w:160,h:20},{x:440,y:190,w:160,h:20},{x:240,y:300,w:220,h:20}];
 const keys={};
 let tanks,bullets=[],shots=0,running=false,raf=0;

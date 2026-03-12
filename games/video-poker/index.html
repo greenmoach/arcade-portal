@@ -24,15 +24,15 @@
   </div>
   <div class="cards" id="cards"></div>
   <div class="controls">
-    <button class="btn btn-outline" onclick="changeBet(-1)">Bet -</button>
-    <button class="btn btn-outline" onclick="changeBet(1)">Bet +</button>
-    <button class="btn" id="deal-btn" onclick="dealOrDraw()">Deal</button>
-    <button class="btn btn-outline" onclick="resetSession()">Reset</button>
+    <button class="btn btn-outline" id="bet-down-btn">Bet -</button>
+    <button class="btn btn-outline" id="bet-up-btn">Bet +</button>
+    <button class="btn" id="deal-btn">Deal</button>
+    <button class="btn btn-outline" id="reset-btn">Reset</button>
   </div>
   <div class="overlay" id="overlay">
     <h2>🎰 Video Poker</h2>
     <p>Set your bet, press Deal, then tap cards or press keys 1-5 to hold. Press Deal again to draw replacements and collect your payout.</p>
-    <button class="btn" id="overlay-btn" onclick="startGame()">Start Machine</button>
+    <button class="btn" id="overlay-btn">Start Machine</button>
   </div>
   <div class="status" id="status">Press Start to begin.</div>
 </div>
@@ -54,6 +54,11 @@ function toggleHold(i){if(!running||phase!=='draw'||!hand[i])return;holds[i]=!ho
 function dealOrDraw(){if(!running)return;if(phase!=='draw'){if(balance<bet){statusEl.textContent='Not enough credits. Reset the machine to continue.';return;}balance-=bet;buildDeck();hand=[deck.pop(),deck.pop(),deck.pop(),deck.pop(),deck.pop()];holds=[false,false,false,false,false];phase='draw';statusEl.textContent='Choose cards to hold, then draw.';render();return;}for(let i=0;i<5;i++)if(!holds[i])hand[i]=deck.pop();const result=handResult(hand),payout=result.mult*bet;if(payout){balance+=payout;wins++;localStorage.setItem(WINS_KEY,String(wins));if(best==='—'||result.rank>PAYOUTS.none.rank&&Object.values(PAYOUTS).find(p=>p.name===best)?.rank<result.rank){best=result.name;localStorage.setItem(BEST_KEY,best);}statusEl.textContent=`${result.name}! Payout: ${payout}.`;}else statusEl.textContent='No payout this round.';phase='bet';holds=[false,false,false,false,false];render();}
 function resetSession(){balance=100;bet=1;wins=0;best='—';localStorage.removeItem(WINS_KEY);localStorage.removeItem(BEST_KEY);hand=[];holds=[false,false,false,false,false];phase=running?'bet':'idle';statusEl.textContent='Machine reset. Ready for a new run.';render();}
 document.addEventListener('keydown',e=>{if(overlay.style.display!=='none'&&(e.key==='Enter'||e.key===' ')){e.preventDefault();document.getElementById('overlay-btn').click();return;}if(!running)return;if(['ArrowLeft','ArrowDown'].includes(e.key)&&phase!=='draw'){e.preventDefault();changeBet(-1);return;}if(['ArrowRight','ArrowUp'].includes(e.key)&&phase!=='draw'){e.preventDefault();changeBet(1);return;}if(/^[1-5]$/.test(e.key)&&phase==='draw'){e.preventDefault();toggleHold(+e.key-1);return;}if(e.key==='Enter'||e.key===' '){e.preventDefault();dealOrDraw();}});
+document.getElementById('overlay-btn').addEventListener('click',startGame);
+document.getElementById('bet-down-btn').addEventListener('click',()=>changeBet(-1));
+document.getElementById('bet-up-btn').addEventListener('click',()=>changeBet(1));
+document.getElementById('deal-btn').addEventListener('click',dealOrDraw);
+document.getElementById('reset-btn').addEventListener('click',resetSession);
 render();
 </script>
 </body>

@@ -51,13 +51,13 @@ h1{margin:20px 0 4px;font-size:24px;font-weight:700}
   <div class="overlay" id="overlay">
     <h2>❌ Ready to Play?</h2>
     <p>You are X. The AI is O. Taps work on mobile, and keyboard controls work on desktop.</p>
-    <button class="btn" id="overlay-btn" onclick="startGame()">Start Game</button>
+    <button class="btn" id="overlay-btn">Start Game</button>
   </div>
 </div>
 
 <div class="controls">
-  <button class="btn btn-outline" onclick="resetRound()">New Round</button>
-  <button class="btn" onclick="startGame()">Restart Match</button>
+  <button class="btn btn-outline" id="new-round-btn">New Round</button>
+  <button class="btn" id="restart-btn">Restart Match</button>
 </div>
 <p class="hint">Arrow keys move focus · Enter/Space places your mark · Tap any tile on mobile</p>
 
@@ -236,6 +236,9 @@ document.addEventListener('keydown',e=>{
   if(/^([1-9])$/.test(e.key)){e.preventDefault();placeMove(+e.key-1);}
 });
 
+document.getElementById('overlay-btn').addEventListener('click',startGame);
+document.getElementById('new-round-btn').addEventListener('click',resetRound);
+document.getElementById('restart-btn').addEventListener('click',startGame);
 makeBoard();
 render();
 </script>

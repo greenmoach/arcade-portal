@@ -46,10 +46,10 @@ h1{margin:20px 0 4px;font-size:24px;font-weight:700}
   <div class="overlay" id="overlay">
     <h2>🔨 Whack-a-Mole</h2>
     <p>You have 30 seconds. Hit every mole you can — they speed up as your score climbs.</p>
-    <button class="btn" id="overlay-btn" onclick="startGame()">Start Game</button>
+    <button class="btn" id="overlay-btn">Start Game</button>
   </div>
 </div>
-<div class="controls"><button class="btn" onclick="startGame()">Restart</button></div>
+<div class="controls"><button class="btn" id="restart-btn">Restart</button></div>
 <p class="hint">Arrow keys move focus · Space / Enter whacks · Touch any hole on mobile</p>
 
 <script>
@@ -145,6 +145,8 @@ document.addEventListener('keydown',e=>{
   if(e.key==='Enter'||e.key===' '){e.preventDefault();whack(focusIndex);}
 });
 
+document.getElementById('overlay-btn').addEventListener('click',startGame);
+document.getElementById('restart-btn').addEventListener('click',startGame);
 buildGrid();
 </script>
 </body>

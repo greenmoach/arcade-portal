@@ -28,11 +28,11 @@
     <button class="touch-btn" data-action="fire">●</button>
   </div>
   <div class="status" id="status">Press Start to begin.</div>
-  <div style="margin-top:10px;text-align:center"><button class="btn" onclick="startGame()">Restart</button></div>
+  <div style="margin-top:10px;text-align:center"><button class="btn" id="restart-btn">Restart</button></div>
   <div class="overlay" id="overlay">
     <h2>🐛 Centipede</h2>
     <p>Move with the arrow keys, fire with Space, and stay inside the lower garden while you thin the centipede.</p>
-    <button class="btn" id="overlay-btn" onclick="startGame()">Start Game</button>
+    <button class="btn" id="overlay-btn">Start Game</button>
   </div>
 </div>
 <p class="hint">Arrow keys / Space · Hold mobile buttons for movement and firing</p>
@@ -42,12 +42,12 @@ const overlay=document.getElementById('overlay'),statusEl=document.getElementByI
 const scoreEl=document.getElementById('score'),livesEl=document.getElementById('lives'),waveEl=document.getElementById('wave'),bestEl=document.getElementById('best');
 const BEST_KEY='centipedeBest',CELL=20,COLS=21,ROWS=28;
 const controls={left:false,right:false,up:false,down:false,fire:false};
-let player,centipede=[],mushrooms=[],bullets=[],score=0,lives=3,wave=1,best=+(localStorage.getItem(BEST_KEY)||0),running=false,last=0,stepTimer=0,fireCd=0;
+let player,centipede=[],mushrooms=[],bullets=[],score=0,lives=3,wave=1,best=+(localStorage.getItem(BEST_KEY)||0),running=false,last=0,stepTimer=0,fireCd=0,rafId=0;
 bestEl.textContent=best;
 function resetPlayer(){player={x:10,y:25};}
 function spawnMushrooms(){mushrooms=[];for(let i=0;i<38;i++){const x=Math.floor(Math.random()*COLS),y=2+Math.floor(Math.random()*20);if((x===10&&y>22)||mushrooms.some(m=>m.x===x&&m.y===y))continue;mushrooms.push({x,y,hp:2});}}
 function spawnCentipede(){centipede=[];for(let i=0;i<9+wave;i++)centipede.push({x:i,y:0,dir:1});statusEl.textContent=`Wave ${wave}: keep it out of your garden.`;}
-function startGame(){score=0;lives=3;wave=1;bullets=[];spawnMushrooms();spawnCentipede();resetPlayer();running=true;overlay.style.display='none';updateStats();if(!last)requestAnimationFrame(loop);}
+function startGame(){score=0;lives=3;wave=1;bullets=[];spawnMushrooms();spawnCentipede();resetPlayer();running=true;overlay.style.display='none';updateStats();cancelAnimationFrame(rafId);last=0;rafId=requestAnimationFrame(loop);}
 function updateStats(){scoreEl.textContent=score;livesEl.textContent=lives;waveEl.textContent=wave;bestEl.textContent=best;}
 function mushroomAt(x,y){return mushrooms.find(m=>m.x===x&&m.y===y&&m.hp>0);}
 function loseLife(){lives--;updateStats();if(lives<=0){running=false;statusEl.textContent=`Game over at ${score} points.`;overlay.innerHTML=`<h2>🌿 Garden Overrun</h2><p>You reached wave ${wave} and scored ${score} points.</p><button class="btn" id="overlay-btn">Play Again</button>`;overlay.style.display='flex';document.getElementById('overlay-btn').addEventListener('click',startGame);}else{resetPlayer();statusEl.textContent='Watch out! Keep firing.';}}
@@ -55,10 +55,12 @@ function update(dt){if(controls.left)player.x=Math.max(0,player.x-9*dt);if(contr
   if(centipede.some(seg=>Math.abs(seg.x-player.x)<.6&&Math.abs(seg.y-player.y)<.6))loseLife();if(!centipede.length){wave++;spawnCentipede();updateStats();}}
 function moveCentipede(){for(let i=0;i<centipede.length;i++){const seg=centipede[i];const nx=seg.x+seg.dir;const blocked=nx<0||nx>=COLS||mushroomAt(nx,Math.round(seg.y));if(blocked){seg.dir*=-1;seg.y=Math.min(ROWS-2,seg.y+1);}else seg.x=nx;}if(centipede.some(seg=>seg.y>=24))statusEl.textContent='The centipede is closing in!';}
 function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);for(let y=0;y<ROWS;y++){ctx.strokeStyle='rgba(255,255,255,.04)';ctx.beginPath();ctx.moveTo(0,y*CELL);ctx.lineTo(canvas.width,y*CELL);ctx.stroke();}ctx.fillStyle='rgba(34,197,94,.08)';ctx.fillRect(0,18*CELL,canvas.width,10*CELL);mushrooms.filter(m=>m.hp>0).forEach(m=>{ctx.fillStyle=m.hp===2?'#f59e0b':'#fb7185';ctx.beginPath();ctx.arc(m.x*CELL+CELL/2,m.y*CELL+CELL/2,7,0,Math.PI*2);ctx.fill();ctx.fillStyle='#fff';ctx.fillRect(m.x*CELL+9,m.y*CELL+6,2,8);});centipede.forEach((seg,i)=>{ctx.fillStyle=i===0?'#34d399':'#10b981';ctx.beginPath();ctx.arc(seg.x*CELL+CELL/2,seg.y*CELL+CELL/2,8,0,Math.PI*2);ctx.fill();});ctx.fillStyle='#93c5fd';ctx.beginPath();ctx.moveTo(player.x*CELL+10,player.y*CELL+2);ctx.lineTo(player.x*CELL+18,player.y*CELL+18);ctx.lineTo(player.x*CELL+2,player.y*CELL+18);ctx.closePath();ctx.fill();ctx.fillStyle='#fef08a';bullets.forEach(b=>ctx.fillRect(b.x*CELL+9,b.y*CELL,3,10));}
-function loop(ts){const dt=Math.min(0.033,(ts-last||16)/1000);last=ts;if(running)update(dt);draw();requestAnimationFrame(loop);}
+function loop(ts){const dt=Math.min(0.033,(ts-last||16)/1000);last=ts;if(running)update(dt);draw();rafId=requestAnimationFrame(loop);}
 document.addEventListener('keydown',e=>{if(overlay.style.display!=='none'&&(e.key==='Enter'||e.key===' ')){e.preventDefault();document.getElementById('overlay-btn').click();return;}if(e.key==='ArrowLeft'){controls.left=true;e.preventDefault();}if(e.key==='ArrowRight'){controls.right=true;e.preventDefault();}if(e.key==='ArrowUp'){controls.up=true;e.preventDefault();}if(e.key==='ArrowDown'){controls.down=true;e.preventDefault();}if(e.key===' '){controls.fire=true;e.preventDefault();}});
 document.addEventListener('keyup',e=>{if(e.key==='ArrowLeft')controls.left=false;if(e.key==='ArrowRight')controls.right=false;if(e.key==='ArrowUp')controls.up=false;if(e.key==='ArrowDown')controls.down=false;if(e.key===' ')controls.fire=false;});
 document.querySelectorAll('[data-action]').forEach(btn=>{const action=btn.dataset.action;const on=()=>controls[action]=true;const off=()=>controls[action]=false;btn.addEventListener('pointerdown',on);btn.addEventListener('pointerup',off);btn.addEventListener('pointerleave',off);btn.addEventListener('pointercancel',off);});
+document.getElementById('restart-btn').addEventListener('click', startGame);
+document.getElementById('overlay-btn').addEventListener('click', startGame);
 draw();
 </script>
 </body>

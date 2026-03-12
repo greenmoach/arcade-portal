@@ -51,8 +51,8 @@ h1{margin:20px 0 4px;font-size:24px;font-weight:700}
 <div class="status" id="status">🟡 Player 1's turn</div>
 
 <div class="controls">
-  <button class="btn btn-outline" onclick="newGame()">New Game</button>
-  <button class="btn" onclick="toggleAI()" id="ai-btn">vs AI: OFF</button>
+  <button class="btn btn-outline" id="new-game-btn">New Game</button>
+  <button class="btn" id="ai-btn">vs AI: OFF</button>
 </div>
 
 <script>
@@ -189,6 +189,8 @@ function render(){
   }
 }
 
+document.getElementById('new-game-btn').addEventListener('click',newGame);
+document.getElementById('ai-btn').addEventListener('click',toggleAI);
 newGame();
 </script>
 </body>

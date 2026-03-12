@@ -22,14 +22,16 @@
 <p class="hint">Keyboard: ←/→ outer radius, ↑/↓ inner radius, + offset, R randomize · Touch: use buttons</p>
 <script>
 const BEST_KEY='spirographBestComplexity';
-const canvas=document.getElementById('canvas'),ctx=canvas.getContext('2d'),overlay=document.getElementById('overlay'),statusEl=document.getElementById('status');
-let outer=140,inner=63,offset=74,t=0,lastPoint=null,started=false,best=+(localStorage.getItem(BEST_KEY)||203);
+const canvas=document.getElementById('canvas'),ctx=canvas.getContext('2d');
+if(!ctx) throw new Error('Canvas 2d context unavailable');
+const overlay=document.getElementById('overlay'),statusEl=document.getElementById('status');
+let outer=140,inner=63,offset=74,t=0,lastPoint=null,started=false,best=+(localStorage.getItem(BEST_KEY)||203),rafId=0;
 document.getElementById('best').textContent=String(best);
 function gcd(a,b){while(b){[a,b]=[b,a%b];}return Math.abs(a);} 
 function complexity(){return outer+inner+offset;}
 function updateStats(){document.getElementById('outer').textContent=String(outer);document.getElementById('inner').textContent=String(inner);if(complexity()>best){best=complexity();localStorage.setItem(BEST_KEY,String(best));document.getElementById('best').textContent=String(best);}}
 function resetPath(){ctx.fillStyle='#0f172a';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.strokeStyle='rgba(255,255,255,.08)';ctx.beginPath();ctx.arc(280,210,outer,0,Math.PI*2);ctx.stroke();t=0;lastPoint=null;}
-function step(){ctx.fillStyle='rgba(15,23,42,.025)';ctx.fillRect(0,0,canvas.width,canvas.height);const x=(outer-inner)*Math.cos(t)+offset*Math.cos(((outer-inner)/inner)*t);const y=(outer-inner)*Math.sin(t)-offset*Math.sin(((outer-inner)/inner)*t);const point={x:280+x,y:210+y};if(lastPoint){ctx.strokeStyle=`hsl(${(t*28)%360},90%,70%)`;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(lastPoint.x,lastPoint.y);ctx.lineTo(point.x,point.y);ctx.stroke();}lastPoint=point;t+=0.03;const loops=(inner/gcd(outer,inner))*Math.PI*2;if(t>loops){t=0;lastPoint=null;statusEl.textContent='Loop complete — tweak the radii for a new figure.';}requestAnimationFrame(step);} 
+function step(){ctx.fillStyle='rgba(15,23,42,.025)';ctx.fillRect(0,0,canvas.width,canvas.height);const x=(outer-inner)*Math.cos(t)+offset*Math.cos(((outer-inner)/inner)*t);const y=(outer-inner)*Math.sin(t)-offset*Math.sin(((outer-inner)/inner)*t);const point={x:280+x,y:210+y};if(lastPoint){ctx.strokeStyle=`hsl(${(t*28)%360},90%,70%)`;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(lastPoint.x,lastPoint.y);ctx.lineTo(point.x,point.y);ctx.stroke();}lastPoint=point;t+=0.03;const loops=(inner/gcd(outer,inner))*Math.PI*2;if(t>loops){t=0;lastPoint=null;statusEl.textContent='Loop complete — tweak the radii for a new figure.';}rafId=requestAnimationFrame(step);}
 function startGame(){started=true;overlay.style.display='none';statusEl.textContent='Pattern in motion.';updateStats();resetPath();}
 function adjust(type,delta){if(type==='outer')outer=Math.max(90,Math.min(180,outer+delta));if(type==='inner')inner=Math.max(24,Math.min(110,inner+delta));offset=Math.max(20,Math.min(120,offset));updateStats();resetPath();statusEl.textContent='Parameters updated.';}
 function randomize(){outer=100+((Math.random()*70)|0);inner=30+((Math.random()*50)|0);offset=40+((Math.random()*60)|0);updateStats();resetPath();statusEl.textContent='Random pattern loaded.';}

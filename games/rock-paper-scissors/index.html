@@ -54,12 +54,12 @@ h1{margin:20px 0 4px;font-size:24px;font-weight:700}
   </div>
   <div class="status" id="status">Press Start to begin.</div>
   <div class="controls" style="margin-top:16px">
-    <button class="btn btn-outline" onclick="resetMatch()">New Match</button>
+    <button class="btn btn-outline" id="new-match-btn">New Match</button>
   </div>
   <div class="overlay" id="overlay">
     <h2>✂️ Ready for Best of 5?</h2>
     <p>Pick rock, paper, or scissors with the mouse, touch, or keyboard. First to 3 wins the match.</p>
-    <button class="btn" id="overlay-btn" onclick="startGame()">Start Match</button>
+    <button class="btn" id="overlay-btn">Start Match</button>
   </div>
 </div>
 <p class="hint">Left / Right changes selection · Enter plays · Keys R / P / S also work</p>
@@ -176,6 +176,8 @@ document.addEventListener('keydown',e=>{
   }
 });
 
+document.getElementById('new-match-btn').addEventListener('click',resetMatch);
+document.getElementById('overlay-btn').addEventListener('click',startGame);
 buildChoices();
 </script>
 </body>

@@ -23,11 +23,11 @@
     <div class="panel"><h3>Your Fleet</h3><div class="board" id="player-board"></div></div>
     <div class="panel"><h3>Enemy Waters</h3><div class="board" id="enemy-board"></div></div>
   </div>
-  <div class="controls"><button class="btn" onclick="startGame()">New Battle</button></div>
+  <div class="controls"><button class="btn" id="new-battle-btn">New Battle</button></div>
   <div class="overlay" id="overlay">
     <h2>🚢 Battleship</h2>
     <p>Use arrow keys to move the targeting cursor across the enemy grid and press Enter to fire. Tap enemy cells on touch devices.</p>
-    <button class="btn" id="overlay-btn" onclick="startGame()">Start Battle</button>
+    <button class="btn" id="overlay-btn">Start Battle</button>
   </div>
   <div class="status" id="status">Press Start to begin.</div>
 </div>
@@ -50,6 +50,8 @@ function fireAtEnemy(r,c){if(!playerTurn)return;const result=markShot(enemyState
 function aiTurn(){let target=aiTargets.shift();while(target&&(playerState.grid[target[0]][target[1]].hit||playerState.grid[target[0]][target[1]].miss))target=aiTargets.shift();if(!target){do{target=[Math.floor(Math.random()*SIZE),Math.floor(Math.random()*SIZE)];}while(playerState.grid[target[0]][target[1]].hit||playerState.grid[target[0]][target[1]].miss);}const result=markShot(playerState,target[0],target[1]);if(result.hit){statusEl.textContent=result.sunk?'Enemy sank one of your ships!':'Enemy scored a hit!';neighbors(target[0],target[1]).forEach(n=>aiTargets.push(n));if(shipsLeft(playerState)===0){finish(false,'The AI sank your fleet before you could finish the job.');return;}setTimeout(aiTurn,260);}else{statusEl.textContent='Enemy missed. Your turn again.';playerTurn=true;}render();}
 function finish(win,text){playerTurn=false;render();overlay.innerHTML=`<h2>${win?'Victory!':'Defeat'}</h2><p>${text}</p><button class="btn" id="overlay-btn">Play Again</button>`;overlay.style.display='flex';document.getElementById('overlay-btn').addEventListener('click',startGame);updateStats();statusEl.textContent=text;}
 document.addEventListener('keydown',e=>{if(overlay.style.display!=='none'&&(e.key==='Enter'||e.key===' ')){e.preventDefault();document.getElementById('overlay-btn').click();return;}const arrows={ArrowLeft:[0,-1],ArrowRight:[0,1],ArrowUp:[-1,0],ArrowDown:[1,0]};if(arrows[e.key]){e.preventDefault();cursor={r:(cursor.r+arrows[e.key][0]+SIZE)%SIZE,c:(cursor.c+arrows[e.key][1]+SIZE)%SIZE};render();return;}if(e.key==='Enter'){e.preventDefault();fireAtEnemy(cursor.r,cursor.c);}});
+document.getElementById('new-battle-btn').addEventListener('click', startGame);
+document.getElementById('overlay-btn').addEventListener('click', startGame);
 render();
 </script>
 </body>

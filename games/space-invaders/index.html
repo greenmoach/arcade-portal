@@ -23,18 +23,19 @@
   <div class="overlay" id="overlay">
     <h2>👾 Space Invaders</h2>
     <p>Move with ← → or A/D, fire with Space, and keep the aliens from landing. Swipe to move on touch screens and tap to shoot.</p>
-    <button class="btn" id="overlay-btn" onclick="startGame()">Start Game</button>
+    <button class="btn" id="overlay-btn">Start Game</button>
   </div>
   <div class="status" id="status">Press Start to begin.</div>
 </div>
 <p class="hint">Arrow keys / A D to move · Space to shoot · Swipe/tap on mobile</p>
 <script>
 const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
+if(!ctx) throw new Error('Canvas 2d context unavailable');
 const BEST_KEY='spaceInvadersBest';
-let player={x:260,y:580,w:44,h:22},bullets=[],alienBullets=[],aliens=[],dir=1,score=0,lives=3,wave=1,best=+(localStorage.getItem(BEST_KEY)||0),running=false,last=0,keys={},cooldown=0,statusMsg='Press Start to begin.';
+let player={x:260,y:580,w:44,h:22},bullets=[],alienBullets=[],aliens=[],dir=1,score=0,lives=3,wave=1,best=+(localStorage.getItem(BEST_KEY)||0),running=false,last=0,keys={},cooldown=0,statusMsg='Press Start to begin.',rafId=0;
 document.getElementById('best').textContent=best;
 spawnWave();
-function startGame(){score=0;lives=3;wave=1;running=true;keys={};cooldown=0;statusMsg='Wave 1: clear the formation.';player={x:260,y:580,w:44,h:22};bullets=[];alienBullets=[];spawnWave();updateStats();document.getElementById('overlay').style.display='none';last=0;requestAnimationFrame(loop);} 
+function startGame(){score=0;lives=3;wave=1;running=true;keys={};cooldown=0;statusMsg='Wave 1: clear the formation.';player={x:260,y:580,w:44,h:22};bullets=[];alienBullets=[];spawnWave();updateStats();document.getElementById('overlay').style.display='none';last=0;cancelAnimationFrame(rafId);rafId=requestAnimationFrame(loop);}
 function spawnWave(){aliens=[];dir=1;const rows=5,cols=9;for(let r=0;r<rows;r++)for(let c=0;c<cols;c++)aliens.push({x:60+c*44,y:60+r*38,w:28,h:22,row:r,alive:true});updateStats();}
 function updateStats(){document.getElementById('score').textContent=score;document.getElementById('lives').textContent=lives;document.getElementById('wave').textContent=wave;document.getElementById('best').textContent=best;document.getElementById('status').textContent=statusMsg;}
 function shoot(){if(!running||cooldown>0)return;bullets.push({x:player.x,y:player.y-18,vy:-8});cooldown=16;}
@@ -55,7 +56,8 @@ ctx.fillStyle='#22c55e';ctx.fillRect(player.x-player.w/2,player.y-player.h/2,pla
 aliens.forEach(a=>{if(!a.alive)return;ctx.fillStyle=['#f472b6','#fb7185','#f59e0b','#a3e635','#22d3ee'][a.row];ctx.fillRect(a.x-a.w/2,a.y-a.h/2,a.w,a.h);ctx.clearRect(a.x-8,a.y-3,4,4);ctx.clearRect(a.x+4,a.y-3,4,4);});
 ctx.fillStyle='#f8fafc';bullets.forEach(b=>ctx.fillRect(b.x-2,b.y-8,4,12));ctx.fillStyle='#f97316';alienBullets.forEach(b=>ctx.fillRect(b.x-2,b.y-2,4,10));
 ctx.fillStyle='#334155';ctx.fillRect(20,602,canvas.width-40,6);}
-function loop(ts){if(!running)return;const dt=ts-last||16;last=ts;update(dt);draw();requestAnimationFrame(loop);} 
+function loop(ts){if(!running)return;const dt=ts-last||16;last=ts;update(dt);draw();rafId=requestAnimationFrame(loop);}
+document.getElementById('overlay-btn').addEventListener('click',startGame);
 document.addEventListener('keydown',e=>{if(document.getElementById('overlay').style.display!=='none'&&(e.key==='Enter'||e.key===' ')){e.preventDefault();document.getElementById('overlay-btn').click();return;}keys[e.key]=true;if(e.key===' '){e.preventDefault();shoot();}});document.addEventListener('keyup',e=>{keys[e.key]=false;});
 let touchStart=null;canvas.addEventListener('touchstart',e=>{const t=e.touches[0];touchStart={x:t.clientX,y:t.clientY,time:Date.now()};},{passive:true});canvas.addEventListener('touchmove',e=>{if(!running)return;const t=e.touches[0];const rect=canvas.getBoundingClientRect();player.x=Math.min(canvas.width-26,Math.max(26,(t.clientX-rect.left)/rect.width*canvas.width));},{passive:true});canvas.addEventListener('touchend',e=>{if(!touchStart||!running)return;const t=e.changedTouches[0];const dx=t.clientX-touchStart.x,dy=t.clientY-touchStart.y;if(Math.abs(dx)<14&&Math.abs(dy)<14)shoot();touchStart=null;},{passive:true});
 draw();

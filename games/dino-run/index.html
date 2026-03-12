@@ -38,7 +38,7 @@ function startGame(){dino={x:70,y:180,w:42,h:48,vy:0,onGround:true};obstacles=[]
 function jump(){if(running&&dino.onGround){dino.vy=-12.5;dino.onGround=false;statusMsg='Jump!';updateStats();}}
 function setDuck(state){ducking=state&&dino.onGround;dino.h=ducking?30:48;dino.y=ducking?198:180;}
 function addObstacle(){const bird=Math.random()<.35&&score>8;obstacles.push(bird?{x:canvas.width+40,y:170,w:42,h:28,type:'bird',passed:false}:{x:canvas.width+40,y:190,w:24+Math.random()*20,h:40,type:'cactus',passed:false});}
-function rectsOverlap(a,b){return a.x<a.x+a.w&&a.x+b.w>b.x&&a.y<a.y+a.h&&a.y+b.h>b.y&&a.x<b.x+b.w&&a.y<b.y+b.h&&a.x+a.w>b.x&&a.y+a.h>b.y;}
+function rectsOverlap(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;}
 function updateStats(){document.getElementById('score').textContent=String(score);document.getElementById('best').textContent=String(best);document.getElementById('speed').textContent=(speed/6).toFixed(1)+'x';document.getElementById('dodges').textContent=String(dodges);document.getElementById('status').textContent=statusMsg;}
 function endGame(text){running=false;statusMsg=`Final score: ${score}`;updateStats();const overlay=document.getElementById('overlay');overlay.innerHTML=`<h2>Run Over</h2><p>${text}</p><button class="btn" id="overlay-btn">Try Again</button>`;overlay.style.display='flex';document.getElementById('overlay-btn').addEventListener('click',startGame);} 
 function update(dt){spawn+=dt;score+=dt/950;if(Math.floor(score)>best){best=Math.floor(score);localStorage.setItem(BEST_KEY,String(best));}speed=Math.min(14,6+score/12);if(spawn>1200-Math.min(700,score*15)){spawn=0;addObstacle();}

@@ -24,7 +24,7 @@
   <div class="overlay" id="overlay">
     <h2>🔢 Sudoku</h2>
     <p>Click a cell, use 1–9 on your keyboard, and press Backspace to clear. Touch devices can use the number pad below.</p>
-    <button class="btn" id="overlay-btn" onclick="startGame()">Start Game</button>
+    <button class="btn" id="overlay-btn">Start Game</button>
   </div>
   <div class="status" id="status">Press Start to begin.</div>
 </div>
@@ -45,6 +45,7 @@ function checkWin(){const done=puzzle.every((row,r)=>row.every((cell,c)=>cell.va
 function finish(win,text){active=false;clearInterval(timer);statusEl.textContent=text;overlay.innerHTML=`<h2>${win?'Puzzle Solved!':'Round Over'}</h2><p>${text}</p><button class="btn" id="overlay-btn">${win?'Play Again':'Try Again'}</button>`;overlay.style.display='flex';document.getElementById('overlay-btn').addEventListener('click',startGame);updateStats();}
 function render(){boardEl.innerHTML='';for(let r=0;r<9;r++)for(let c=0;c<9;c++){const cell=puzzle[r][c],btn=document.createElement('button');btn.className='cell'+(cell.given?' given':'')+(selected.r===r&&selected.c===c?' selected':'')+(cell.error?' error':'');btn.textContent=cell.value||'';btn.style.marginRight=c===2||c===5?'5px':'0';btn.style.marginBottom=r===2||r===5?'5px':'0';btn.onclick=()=>{selected={r,c};render();};boardEl.appendChild(btn);}}
 document.addEventListener('keydown',e=>{if(overlay.style.display!=='none'&&(e.key==='Enter'||e.key===' ')){e.preventDefault();document.getElementById('overlay-btn').click();return;}if(!puzzle)return;const arrows={ArrowLeft:[0,-1],ArrowRight:[0,1],ArrowUp:[-1,0],ArrowDown:[1,0]};if(arrows[e.key]){e.preventDefault();selected={r:(selected.r+arrows[e.key][0]+9)%9,c:(selected.c+arrows[e.key][1]+9)%9};render();return;}if(/^[1-9]$/.test(e.key)){inputNumber(+e.key);return;}if(e.key==='Backspace'||e.key==='Delete'||e.key==='0'){inputNumber(0);}});
+document.getElementById('overlay-btn').addEventListener('click',startGame);
 buildPad();
 </script>
 </body>

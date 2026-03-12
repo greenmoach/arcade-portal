@@ -38,11 +38,11 @@
     </div>
   </div>
   <div class="status" id="status">Press Start to begin.</div>
-  <div class="controls"><button class="btn" onclick="checkPuzzle()">Check Puzzle</button><button class="btn btn-outline" onclick="startGame()">Clear Grid</button></div>
+  <div class="controls"><button class="btn" id="check-btn">Check Puzzle</button><button class="btn btn-outline" id="clear-btn">Clear Grid</button></div>
   <div class="overlay" id="overlay">
     <h2>✏️ Crossword</h2>
     <p>Type directly into the crossword cells. Arrow keys and taps both work, and Check Puzzle lets you verify your progress.</p>
-    <button class="btn" id="overlay-btn" onclick="startGame()">Start Game</button>
+    <button class="btn" id="overlay-btn">Start Game</button>
   </div>
 </div>
 <p class="hint">Type letters · Arrow keys move between cells · Tap any cell on mobile to fill it</p>
@@ -70,6 +70,9 @@ function focusNext(x,y){const right=inputs.find(input=>+input.dataset.x===x+1&&+
 function focusPrev(x,y){const left=inputs.find(input=>+input.dataset.x===x-1&&+input.dataset.y===y);const up=inputs.find(input=>+input.dataset.x===x&&+input.dataset.y===y-1);(left||up)?.focus();}
 function updateFilled(){filled=inputs.filter(input=>input.value).length;filledEl.textContent=`${filled}/9`;}
 function checkPuzzle(){if(!active)return;checks++;checksEl.textContent=checks;let solved=true;inputs.forEach(input=>{const x=+input.dataset.x,y=+input.dataset.y;const correct=LAYOUT[y][x];input.style.color=input.value===correct?'#10b981':'#ef4444';if(input.value!==correct)solved=false;});if(solved){active=false;if(!best||checks<best){best=checks;localStorage.setItem(BEST_KEY,String(best));}bestEl.textContent=`${best} checks`;statusEl.textContent=`Crossword solved in ${checks} checks!`;overlay.innerHTML=`<h2>🎉 Crossword Complete</h2><p>You filled every answer correctly with ${checks} puzzle checks.</p><button class="btn" id="overlay-btn">Play Again</button>`;overlay.style.display='flex';document.getElementById('overlay-btn').addEventListener('click',startGame);}else statusEl.textContent='Some letters still need work — keep going!';}
+document.getElementById('check-btn').addEventListener('click',checkPuzzle);
+document.getElementById('clear-btn').addEventListener('click',startGame);
+document.getElementById('overlay-btn').addEventListener('click',startGame);
 buildGrid();updateFilled();
 </script>
 </body>

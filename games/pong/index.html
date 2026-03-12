@@ -34,8 +34,8 @@ canvas{background:#1a1a2e;border-radius:14px;box-shadow:0 4px 12px rgba(0,0,0,.1
     <h2>🏓 Pong</h2>
     <p>Choose your mode</p>
     <div class="mode-row">
-      <button class="btn" onclick="startGame(false)">vs AI</button>
-      <button class="btn" onclick="startGame(true)">2 Players</button>
+      <button class="btn" id="btn-ai">vs AI</button>
+      <button class="btn" id="btn-2p">2 Players</button>
     </div>
     <p>Player 1: W/S &nbsp;·&nbsp; Player 2: ↑/↓<br>vs AI: move mouse or W/S</p>
   </div>
@@ -45,6 +45,7 @@ canvas{background:#1a1a2e;border-radius:14px;box-shadow:0 4px 12px rgba(0,0,0,.1
 <script>
 const canvas=document.getElementById('c');
 const ctx=canvas.getContext('2d');
+if(!ctx) return;
 const W=480,H=360,PW=10,PH=70,BALL_R=8,WIN=7;
 
 let p1,p2,ball,scores,running,animId,twoPlayer;
@@ -154,6 +155,8 @@ function draw(){
   ctx.beginPath();ctx.arc(ball.x-ball.vx*1.5,ball.y-ball.vy*1.5,ball.r*.6,0,Math.PI*2);ctx.fill();
 }
 
+document.getElementById('btn-ai').addEventListener('click',()=>startGame(false));
+document.getElementById('btn-2p').addEventListener('click',()=>startGame(true));
 document.addEventListener('keydown',e=>{keys[e.key]=true;if(['ArrowUp','ArrowDown'].includes(e.key))e.preventDefault();});
 document.addEventListener('keyup',e=>{keys[e.key]=false;});
 

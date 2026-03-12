@@ -30,6 +30,7 @@
 <p class="hint">Keyboard: arrows + Enter · Space to pass · Touch: tap cells</p>
 <script>
 const canvas=document.getElementById('board'),ctx=canvas.getContext('2d');
+if(!ctx) throw new Error('Canvas 2D context not available');
 const SIZE=5,CELL=100,WINS_KEY='diceWarWins';
 let grid=[],cursor=0,selected=null,turn=1,wins=+(localStorage.getItem(WINS_KEY)||0),running=false,statusMsg='Blue begins the war.';
 document.getElementById('wins').textContent=wins;

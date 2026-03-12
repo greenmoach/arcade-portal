@@ -20,17 +20,19 @@
 </div>
 <div class="game">
   <div class="board" id="board"><div class="river">楚 河　　　　漢 界</div></div>
-  <div class="controls"><button class="btn" onclick="startGame()">New Match</button></div>
+  <div class="controls"><button class="btn" id="new-match-btn">New Match</button></div>
   <div class="overlay" id="overlay">
     <h2>🐉 Chinese Chess</h2>
     <p>Arrow keys move the cursor and Enter selects or moves. Tap a piece and then a destination on touch devices. Cannons need one screen to capture, elephants cannot cross the river, and flying generals are enforced.</p>
-    <button class="btn" id="overlay-btn" onclick="startGame()">Start Match</button>
+    <button class="btn" id="overlay-btn">Start Match</button>
   </div>
   <div class="status" id="status">Press Start to begin.</div>
 </div>
 <p class="hint">Arrow keys + Enter · Click/tap intersections · General checks and river rules included</p>
 <script>
 const boardEl=document.getElementById('board'),overlay=document.getElementById('overlay'),statusEl=document.getElementById('status');
+document.getElementById('new-match-btn').addEventListener('click',startGame);
+document.getElementById('overlay-btn').addEventListener('click',startGame);
 const WINS_KEY='chineseChessWins';
 const ICONS={R:'俥',H:'傌',E:'相',A:'仕',K:'帥',C:'炮',P:'兵',r:'車',h:'馬',e:'象',a:'士',k:'將',c:'砲',p:'卒'};
 const START=[['r','h','e','a','k','a','e','h','r'],['','','','','','','','',''],['','c','','','','','','c',''],['p','','p','','p','','p','','p'],['','','','','','','','',''],['','','','','','','','',''],['P','','P','','P','','P','','P'],['','C','','','','','','C',''],['','','','','','','','',''],['R','H','E','A','K','A','E','H','R']];

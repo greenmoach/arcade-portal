@@ -42,7 +42,7 @@ canvas{background:#fff;border-radius:14px;border:1px solid #e5e7eb;box-shadow:0 
   <div class="overlay" id="overlay">
     <h2>🧱 Breakout</h2>
     <p>Move mouse or finger to control the paddle.<br>Break all bricks to advance!</p>
-    <button class="btn" onclick="startGame()">Start Game</button>
+    <button class="btn" id="start-btn">Start Game</button>
   </div>
 </div>
 <p class="hint">Mouse / Touch to move paddle · Click to launch ball</p>
@@ -180,6 +180,7 @@ canvas.addEventListener('touchmove',e=>{
   if(!ball.launched)ball.launched=true;
 },{passive:false});
 
+document.getElementById('start-btn').addEventListener('click', startGame);
 // Draw initial state
 paddle={x:W/2-40,y:H-30,w:80,h:12};
 ball={x:W/2,y:H-50,r:8,launched:false,vx:0,vy:0};

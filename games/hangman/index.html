@@ -55,7 +55,7 @@ h1{margin:20px 0 4px;font-size:24px;font-weight:700}
   <div class="overlay" id="overlay">
     <h2>🪢 Hangman</h2>
     <p>Use your keyboard or tap the on-screen letters. Every wrong guess costs a life.</p>
-    <button class="btn" id="overlay-btn" onclick="startGame()">Start Game</button>
+    <button class="btn" id="overlay-btn">Start Game</button>
   </div>
 </div>
 <p class="hint">Keyboard letters work instantly · Touch any key on mobile</p>
@@ -162,6 +162,7 @@ document.addEventListener('keydown',e=>{
   if(/^[A-Z]$/.test(letter)){guess(letter);}
 });
 
+document.getElementById('overlay-btn').addEventListener('click',startGame);
 buildKeyboard();
 renderWord();
 </script>

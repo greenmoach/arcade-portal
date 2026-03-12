@@ -26,16 +26,17 @@
     <button class="touch-btn" data-action="right">→</button>
   </div>
   <div class="status" id="status">Press Start to begin.</div>
-  <div style="margin-top:10px;text-align:center"><button class="btn" onclick="startGame()">Restart</button></div>
+  <div style="margin-top:10px;text-align:center"><button class="btn" id="restart-btn">Restart</button></div>
   <div class="overlay" id="overlay">
     <h2>🚀 Galaga</h2>
     <p>Move with the arrow keys, fire with Space, and survive each wave of enemy ships.</p>
-    <button class="btn" id="overlay-btn" onclick="startGame()">Start Game</button>
+    <button class="btn" id="overlay-btn">Start Game</button>
   </div>
 </div>
 <p class="hint">Arrow keys move · Space fires · Hold touch buttons on mobile</p>
 <script>
 const canvas=document.getElementById('c'),ctx=canvas.getContext('2d');
+if(!ctx) throw new Error('canvas 2d context unavailable');
 const overlay=document.getElementById('overlay'),statusEl=document.getElementById('status');
 const scoreEl=document.getElementById('score'),livesEl=document.getElementById('lives'),waveEl=document.getElementById('wave'),bestEl=document.getElementById('best');
 const BEST_KEY='galagaBest';
@@ -51,6 +52,8 @@ function update(dt){player.inv=Math.max(0,player.inv-dt);if(controls.left)player
 function hitPlayer(){lives--;setupPlayer();player.inv=2;updateStats();if(lives<=0){running=false;statusEl.textContent=`Game over at ${score} points.`;overlay.innerHTML=`<h2>👾 Wave Overrun</h2><p>You reached wave ${wave} and scored ${score} points. Ready for another defense run?</p><button class="btn" id="overlay-btn">Play Again</button>`;overlay.style.display='flex';document.getElementById('overlay-btn').addEventListener('click',startGame);}else statusEl.textContent='Ship hit! Keep fighting.';}
 function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);ctx.fillStyle='rgba(255,255,255,.06)';for(let i=0;i<80;i++)ctx.fillRect((i*37)%canvas.width,(i*73)%canvas.height,2,2);if(player.inv<=0||Math.floor(player.inv*10)%2===0){ctx.fillStyle='#38bdf8';ctx.beginPath();ctx.moveTo(player.x,player.y-14);ctx.lineTo(player.x+16,player.y+10);ctx.lineTo(player.x,player.y+4);ctx.lineTo(player.x-16,player.y+10);ctx.closePath();ctx.fill();}enemies.forEach(enemy=>{if(!enemy.alive)return;ctx.fillStyle=enemy.row%2?'#f472b6':'#f59e0b';ctx.beginPath();ctx.moveTo(enemy.x,enemy.y-12);ctx.lineTo(enemy.x+14,enemy.y);ctx.lineTo(enemy.x+8,enemy.y+12);ctx.lineTo(enemy.x-8,enemy.y+12);ctx.lineTo(enemy.x-14,enemy.y);ctx.closePath();ctx.fill();ctx.fillStyle='#111827';ctx.fillRect(enemy.x-6,enemy.y-2,4,4);ctx.fillRect(enemy.x+2,enemy.y-2,4,4);});ctx.fillStyle='#fef08a';playerBullets.forEach(b=>ctx.fillRect(b.x-2,b.y-8,4,12));ctx.fillStyle='#f87171';enemyBullets.forEach(b=>ctx.fillRect(b.x-2,b.y,4,10));}
 function loop(ts){const dt=Math.min(0.033,(ts-last||16)/1000);last=ts;if(running)update(dt);draw();requestAnimationFrame(loop);}
+document.getElementById('overlay-btn').addEventListener('click',startGame);
+document.getElementById('restart-btn').addEventListener('click',startGame);
 document.addEventListener('keydown',e=>{if(overlay.style.display!=='none'&&(e.key==='Enter'||e.key===' ')){e.preventDefault();document.getElementById('overlay-btn').click();return;}if(e.key==='ArrowLeft'){controls.left=true;e.preventDefault();}if(e.key==='ArrowRight'){controls.right=true;e.preventDefault();}if(e.key===' '){controls.fire=true;e.preventDefault();}});
 document.addEventListener('keyup',e=>{if(e.key==='ArrowLeft')controls.left=false;if(e.key==='ArrowRight')controls.right=false;if(e.key===' ')controls.fire=false;});
 document.querySelectorAll('[data-action]').forEach(btn=>{const action=btn.dataset.action;const on=()=>controls[action]=true;const off=()=>controls[action]=false;btn.addEventListener('pointerdown',on);btn.addEventListener('pointerup',off);btn.addEventListener('pointerleave',off);btn.addEventListener('pointercancel',off);});

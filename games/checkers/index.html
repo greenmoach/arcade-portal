@@ -21,18 +21,20 @@
 <div class="game">
   <div class="board" id="board"></div>
   <div class="controls">
-    <button class="btn" onclick="startGame()">New Match</button>
+    <button class="btn" id="new-match-btn">New Match</button>
   </div>
   <div class="overlay" id="overlay">
     <h2>⛀ Checkers</h2>
     <p>Use arrow keys to move the cursor and Enter to select or move. Captures are mandatory, and taps work on touch devices.</p>
-    <button class="btn" id="overlay-btn" onclick="startGame()">Start Match</button>
+    <button class="btn" id="overlay-btn">Start Match</button>
   </div>
   <div class="status" id="status">Press Start to begin.</div>
 </div>
 <p class="hint">Arrow keys + Enter · Click/tap squares · Captures are mandatory</p>
 <script>
 const boardEl=document.getElementById('board'),overlay=document.getElementById('overlay'),statusEl=document.getElementById('status');
+document.getElementById('new-match-btn').addEventListener('click',startGame);
+document.getElementById('overlay-btn').addEventListener('click',startGame);
 const WINS_KEY='checkersWins';
 let board=Array.from({length:8},(_,r)=>Array.from({length:8},(_,c)=>{if((r+c)%2===0)return'';if(r<3)return'b';if(r>4)return'r';return'';})),turn='r',selected=null,cursor={r:5,c:0},multiCapture=false,wins=JSON.parse(localStorage.getItem(WINS_KEY)||'{"r":0,"b":0}');document.getElementById('wins').textContent=`${wins.r} - ${wins.b}`;
 updateStats();

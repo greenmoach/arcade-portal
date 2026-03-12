@@ -28,12 +28,12 @@ h1{margin:20px 0 4px;font-size:24px;font-weight:700}.sub{color:#6b7280;font-size
   <div class="overlay" id="overlay">
     <h2>💡 Lights Out</h2>
     <p>Click or tap tiles to flip them. Arrow keys move focus, and Enter or Space toggles a light.</p>
-    <button class="btn" id="overlay-btn" onclick="startGame()">Start Game</button>
+    <button class="btn" id="overlay-btn">Start Game</button>
   </div>
   <div class="status" id="status">Press Start to begin.</div>
 </div>
 <div class="controls">
-  <button class="btn btn-outline" onclick="startGame()">New Puzzle</button>
+  <button class="btn btn-outline" id="new-puzzle-btn">New Puzzle</button>
 </div>
 <p class="hint">Tap tiles on mobile · Arrow keys move focus · Enter / Space toggles</p>
 <script>
@@ -118,6 +118,8 @@ document.addEventListener('keydown',e=>{
   else return;
   e.preventDefault();render();focusCell();
 });
+document.getElementById('overlay-btn').addEventListener('click',startGame);
+document.getElementById('new-puzzle-btn').addEventListener('click',startGame);
 makeBoard();render();
 </script>
 </body>

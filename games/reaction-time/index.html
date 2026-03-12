@@ -46,11 +46,11 @@ h1{margin:20px 0 4px;font-size:24px;font-weight:700}
   <div class="overlay" id="overlay">
     <h2>⚡ Ready to Test Your Reflexes?</h2>
     <p>Tap the big panel or press Space as soon as it turns green. If you click too early, the round restarts.</p>
-    <button class="btn" id="overlay-btn" onclick="startGame()">Start Challenge</button>
+    <button class="btn" id="overlay-btn">Start Challenge</button>
   </div>
 </div>
 <div class="status" id="status">Finish 5 rounds to record your best average.</div>
-<div class="controls"><button class="btn" onclick="startGame()">Restart</button></div>
+<div class="controls"><button class="btn" id="restart-btn">Restart</button></div>
 <p class="hint">Tap the panel on mobile · Space / Enter works on desktop</p>
 
 <script>
@@ -127,6 +127,8 @@ function finishGame(){
   document.getElementById('overlay-btn').addEventListener('click',startGame);
 }
 
+document.getElementById('overlay-btn').addEventListener('click',startGame);
+document.getElementById('restart-btn').addEventListener('click',startGame);
 stage.addEventListener('click',pressAction);
 document.addEventListener('keydown',e=>{
   if(e.key!==' '&&e.key!=='Enter')return;

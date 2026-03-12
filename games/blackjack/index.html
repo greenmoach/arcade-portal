@@ -67,24 +67,24 @@ h1{margin:20px 0 4px;font-size:24px;font-weight:700}
 
   <div class="bet-row" id="bet-row">
     <span class="bet-display">Place bet:</span>
-    <button class="chip-btn" onclick="bet(5)">$5</button>
-    <button class="chip-btn red-chip" onclick="bet(25)">$25</button>
-    <button class="chip-btn blue-chip" onclick="bet(50)">$50</button>
-    <button class="chip-btn black-chip" onclick="bet(100)">$100</button>
-    <button class="btn btn-gray" onclick="clearBet()">Clear</button>
-    <button class="btn btn-green" id="deal-btn" onclick="deal()" disabled>Deal</button>
+    <button class="chip-btn" id="chip-5">$5</button>
+    <button class="chip-btn red-chip" id="chip-25">$25</button>
+    <button class="chip-btn blue-chip" id="chip-50">$50</button>
+    <button class="chip-btn black-chip" id="chip-100">$100</button>
+    <button class="btn btn-gray" id="clear-bet-btn">Clear</button>
+    <button class="btn btn-green" id="deal-btn" disabled>Deal</button>
   </div>
 
   <div class="action-row" id="action-row" style="display:none">
-    <button class="btn btn-green" id="hit-btn" onclick="hit()">Hit</button>
-    <button class="btn btn-red" id="stand-btn" onclick="stand()">Stand</button>
-    <button class="btn btn-yellow" id="double-btn" onclick="doubleDown()">Double</button>
+    <button class="btn btn-green" id="hit-btn">Hit</button>
+    <button class="btn btn-red" id="stand-btn">Stand</button>
+    <button class="btn btn-yellow" id="double-btn">Double</button>
   </div>
 
   <div class="msg" id="msg"></div>
 </div>
 
-<button class="btn btn-gray" style="margin-top:14px" onclick="resetGame()">Reset Game</button>
+<button class="btn btn-gray" id="reset-game-btn" style="margin-top:14px">Reset Game</button>
 
 <script>
 const SUITS=['♠','♥','♦','♣'];
@@ -222,6 +222,16 @@ function showBetRow(){document.getElementById('bet-row').style.display='flex';do
 function showActionRow(){document.getElementById('bet-row').style.display='none';document.getElementById('action-row').style.display='flex';}
 function clearCards(){document.getElementById('player-cards').innerHTML='';document.getElementById('dealer-cards').innerHTML='';document.getElementById('player-score').textContent='';document.getElementById('dealer-score').textContent='';}
 
+document.getElementById('chip-5').addEventListener('click', () => bet(5));
+document.getElementById('chip-25').addEventListener('click', () => bet(25));
+document.getElementById('chip-50').addEventListener('click', () => bet(50));
+document.getElementById('chip-100').addEventListener('click', () => bet(100));
+document.getElementById('clear-bet-btn').addEventListener('click', clearBet);
+document.getElementById('deal-btn').addEventListener('click', deal);
+document.getElementById('hit-btn').addEventListener('click', hit);
+document.getElementById('stand-btn').addEventListener('click', stand);
+document.getElementById('double-btn').addEventListener('click', doubleDown);
+document.getElementById('reset-game-btn').addEventListener('click', resetGame);
 resetGame();
 </script>
 </body>

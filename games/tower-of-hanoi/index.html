@@ -40,20 +40,21 @@ select{padding:8px 12px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:1
 <div class="msg" id="msg"></div>
 
 <div class="controls">
-  <select id="disks" onchange="newGame()">
+  <select id="disks">
     <option value="3">3 Disks</option>
     <option value="4">4 Disks</option>
     <option value="5">5 Disks</option>
     <option value="6">6 Disks</option>
     <option value="7">7 Disks</option>
   </select>
-  <button class="btn btn-outline" onclick="newGame()">Restart</button>
+  <button class="btn btn-outline" id="restart-btn">Restart</button>
 </div>
 <p class="hint">Click a rod to pick up / place a disk · Move all disks to rod 3</p>
 
 <script>
 const canvas=document.getElementById('c');
 const ctx=canvas.getContext('2d');
+if(!ctx) throw new Error('Canvas 2D context unavailable');
 const W=480,H=300;
 
 const DISK_COLORS=['#ef4444','#f97316','#f59e0b','#84cc16','#22d3ee','#6c63ff','#ec4899'];
@@ -166,6 +167,8 @@ function win(){
     moves===min?`🎉 Perfect! ${moves} moves (optimal!)`:`🎉 Solved in ${moves} moves! (min: ${min})`;
 }
 
+document.getElementById('disks').addEventListener('change',newGame);
+document.getElementById('restart-btn').addEventListener('click',newGame);
 newGame();
 </script>
 </body>

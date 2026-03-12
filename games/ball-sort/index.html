@@ -19,12 +19,12 @@
 </div>
 <div class="wrap">
   <div class="tubes" id="tubes"></div>
-  <div class="controls"><button class="btn btn-outline" onclick="startGame()">Reset Puzzle</button></div>
+  <div class="controls"><button class="btn btn-outline" id="reset-btn">Reset Puzzle</button></div>
   <div class="status" id="status">Press Start to begin.</div>
   <div class="overlay" id="overlay">
     <h2>🟣 Ball Sort</h2>
     <p>Select a source tube, then a destination tube. Use arrow keys to move focus and Enter to select or pour.</p>
-    <button class="btn" id="overlay-btn" onclick="startGame()">Start Game</button>
+    <button class="btn" id="overlay-btn">Start Game</button>
   </div>
 </div>
 <p class="hint">Tap source then destination · Arrow keys move focus · Enter selects / pours</p>
@@ -49,6 +49,8 @@ function countSorted(){return tubes.filter(t=>t.length===4&&t.every(ball=>ball==
 function render(){tubesEl.innerHTML='';tubes.forEach((tube,i)=>{const btn=document.createElement('button');btn.className='tube'+(selected===i?' selected':'')+(focusIndex===i&&active?' focused':'');btn.addEventListener('click',()=>selectTube(i));for(const color of tube){const ball=document.createElement('div');ball.className='ball';ball.style.background=COLORS[color];btn.appendChild(ball);}tubesEl.appendChild(btn);});movesEl.textContent=moves;sortedEl.textContent=`${countSorted()}/4`;bestEl.textContent=best?best:'—';[...tubesEl.children][focusIndex]?.focus();}
 function checkWin(){if(countSorted()!==4)return;active=false;if(!best||moves<best){best=moves;localStorage.setItem(BEST_KEY,String(best));}bestEl.textContent=best;statusEl.textContent=`Puzzle solved in ${moves} moves.`;overlay.innerHTML=`<h2>🎉 Tubes Sorted</h2><p>You organized every ball in ${moves} moves. Ready for another run?</p><button class="btn" id="overlay-btn">Play Again</button>`;overlay.style.display='flex';document.getElementById('overlay-btn').addEventListener('click',startGame);}
 document.addEventListener('keydown',e=>{if(overlay.style.display!=='none'&&(e.key==='Enter'||e.key===' ')){e.preventDefault();document.getElementById('overlay-btn').click();return;}if(!active)return;if(e.key==='ArrowLeft'){focusIndex=(focusIndex+5)%6;render();e.preventDefault();}else if(e.key==='ArrowRight'){focusIndex=(focusIndex+1)%6;render();e.preventDefault();}else if(e.key==='Enter'||e.key===' '){selectTube(focusIndex);e.preventDefault();}else if(/^[1-6]$/.test(e.key)){focusIndex=+e.key-1;selectTube(focusIndex);e.preventDefault();}});
+document.getElementById('reset-btn').addEventListener('click', startGame);
+document.getElementById('overlay-btn').addEventListener('click', startGame);
 render();
 </script>
 </body>

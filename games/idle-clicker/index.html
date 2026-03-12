@@ -41,7 +41,7 @@ const upgrades=[
   {id:'drill',name:'Crystal Drill',cost:60,growth:1.7,owned:0,cps:2.2,tap:1,desc:'Boosts coin flow and strengthens every tap.'},
   {id:'factory',name:'Mint Factory',cost:180,growth:1.9,owned:0,cps:7.5,tap:2,desc:'Heavy automation for serious idle profits.'}
 ];
-let coins=0,total=0,best=+(localStorage.getItem(BEST_KEY)||0),running=false,last=0,statusMsg='Press Start to power up your coin core.';
+let coins=0,total=0,best=+(localStorage.getItem(BEST_KEY)||0),running=false,last=0,rafId=0,statusMsg='Press Start to power up your coin core.';
 document.getElementById('best').textContent=best;
 const shopEl=document.getElementById('shop');
 function tapValue(){return 1+upgrades.reduce((sum,u)=>sum+u.owned*u.tap,0);} 
@@ -53,8 +53,8 @@ function costFor(u){return Math.floor(u.cost*Math.pow(u.growth,u.owned));}
 function updateStats(){syncBest();document.getElementById('coins').textContent=format(coins);document.getElementById('tap').textContent=format(tapValue());document.getElementById('cps').textContent=cpsValue().toFixed(1);document.getElementById('best').textContent=format(best);document.getElementById('status').textContent=statusMsg;renderShop();}
 function clickCore(mult=1){if(!running)return;const gain=tapValue()*mult;coins+=gain;total+=gain;statusMsg=`Collected ${format(gain)} shiny coins!`;updateStats();}
 function buy(id){if(!running)return;const up=upgrades.find(u=>u.id===id);const cost=costFor(up);if(coins<cost){statusMsg='Need more coins for that upgrade.';return updateStats();}coins-=cost;up.owned++;statusMsg=`Bought ${up.name}. Passive income is rising.`;updateStats();}
-function startGame(){coins=0;total=0;last=0;running=true;statusMsg='Tap the core and build your minting empire.';upgrades.forEach(u=>u.owned=0);document.getElementById('overlay').style.display='none';updateStats();requestAnimationFrame(loop);} 
-function loop(ts){if(!running)return;const dt=(ts-last||16)/1000;last=ts;const gain=cpsValue()*dt;coins+=gain;total+=gain;if(Math.random()<dt*.3)statusMsg=`Minting at ${cpsValue().toFixed(1)} coins per second.`;updateStats();requestAnimationFrame(loop);} 
+function startGame(){coins=0;total=0;last=0;running=true;statusMsg='Tap the core and build your minting empire.';upgrades.forEach(u=>u.owned=0);document.getElementById('overlay').style.display='none';updateStats();cancelAnimationFrame(rafId);rafId=requestAnimationFrame(loop);}
+function loop(ts){if(!running)return;const dt=(ts-last||16)/1000;last=ts;const gain=cpsValue()*dt;coins+=gain;total+=gain;if(Math.random()<dt*.3)statusMsg=`Minting at ${cpsValue().toFixed(1)} coins per second.`;updateStats();rafId=requestAnimationFrame(loop);}
 function keyBuy(key){const index=+key-1;if(index>=0&&index<upgrades.length)buy(upgrades[index].id);} 
 document.getElementById('overlay-btn').addEventListener('click',startGame);document.getElementById('orb').addEventListener('click',()=>clickCore(1));document.getElementById('burst').addEventListener('click',()=>clickCore(5));document.addEventListener('keydown',e=>{const overlay=document.getElementById('overlay');if(overlay.style.display!=='none'&&(e.key==='Enter'||e.key===' ')){e.preventDefault();document.getElementById('overlay-btn').click();return;}if(e.key===' '||e.key==='Enter'){e.preventDefault();clickCore(1);}if(/[123]/.test(e.key)){e.preventDefault();keyBuy(e.key);}});updateStats();
 </script>

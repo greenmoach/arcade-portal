@@ -55,7 +55,7 @@ h1{margin:20px 0 4px;font-size:24px;font-weight:700}
   <div class="overlay" id="overlay">
     <h2>🔤 Wordle</h2>
     <p>Every guess must be a valid word from the built-in list. Green means correct spot, yellow means wrong spot.</p>
-    <button class="btn" id="overlay-btn" onclick="startGame()">Start Game</button>
+    <button class="btn" id="overlay-btn">Start Game</button>
   </div>
 </div>
 <p class="hint">Type letters, Backspace, and Enter · On-screen keyboard works for touch devices</p>
@@ -209,6 +209,7 @@ document.addEventListener('keydown',e=>{
   if(/^[A-Z]$/.test(letter)){handleKey(letter);}
 });
 
+document.getElementById('overlay-btn').addEventListener('click',startGame);
 buildBoard();
 buildKeyboard();
 </script>

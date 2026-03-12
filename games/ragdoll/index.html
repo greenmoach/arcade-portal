@@ -40,6 +40,7 @@
 <script>
 const canvas=document.getElementById('game');
 const ctx=canvas.getContext('2d');
+if(!ctx) throw new Error('Canvas 2d context unavailable');
 const BEST_KEY='gamePortal.ragdollBestDistance';
 const COURSE_WIDTH=1800;
 const FINISH_X=1620;
@@ -67,6 +68,7 @@ let boosts=0;
 let farthest=0;
 let best=+(localStorage.getItem(BEST_KEY)||0);
 let cameraX=0;
+let rafId=0;
 let statusMsg='Reach the finish banner before time runs out.';
 function point(x,y){return{x,y,oldx:x,oldy:y};}
 function stick(a,b,length){return{a,b,length};}
@@ -146,7 +148,8 @@ function startRun(){
   hideOverlay();
   updateStats();
   draw();
-  requestAnimationFrame(loop);
+  cancelAnimationFrame(rafId);
+  rafId=requestAnimationFrame(loop);
 }
 function finishRun(win){
   running=false;
@@ -337,7 +340,7 @@ function loop(timestamp){
   lastTime=timestamp;
   update(dt);
   draw();
-  if(running)requestAnimationFrame(loop);
+  if(running)rafId=requestAnimationFrame(loop);
 }
 function pointerWorld(event){
   const rect=canvas.getBoundingClientRect();

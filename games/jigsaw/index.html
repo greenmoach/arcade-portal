@@ -50,20 +50,22 @@ select{padding:8px 12px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:1
 <div class="msg" id="msg"></div>
 
 <div class="controls">
-  <select id="grid-size" onchange="newGame()">
+  <select id="grid-size">
     <option value="3">3×3 (9 pieces)</option>
     <option value="4" selected>4×4 (16 pieces)</option>
     <option value="5">5×5 (25 pieces)</option>
   </select>
-  <button class="btn" onclick="newGame()">New Puzzle</button>
+  <button class="btn" id="new-puzzle-btn">New Puzzle</button>
 </div>
 <p class="hint">Drag pieces from the scatter zone into the correct position</p>
 
 <script>
 const refCv=document.getElementById('ref');
 const refCtx=refCv.getContext('2d');
+if(!refCtx) throw new Error('canvas 2d context unavailable');
 const boardCv=document.getElementById('board');
 const bctx=boardCv.getContext('2d');
+if(!bctx) throw new Error('canvas 2d context unavailable');
 
 const BW=400,BH=400;
 
@@ -227,6 +229,8 @@ document.addEventListener('touchmove',e=>{
 },{passive:false});
 document.addEventListener('touchend',()=>{if(dragging){snapCheck(dragging);dragging=null;draw();}});
 
+document.getElementById('grid-size').addEventListener('change',newGame);
+document.getElementById('new-puzzle-btn').addEventListener('click',newGame);
 newGame();
 </script>
 </body>

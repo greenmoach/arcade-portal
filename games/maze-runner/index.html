@@ -17,6 +17,7 @@
 <p class="hint">Arrow keys / WASD to move · Swipe to move on touch devices · Each exit raises the maze level</p>
 <script>
 const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
+if(!ctx) throw new Error('canvas 2d context unavailable');
 const BEST_KEY='mazeRunnerBest';
 let size=13,cell=36,maze=[],player,exitCell,orbs=[],level=1,timeLeft=45,steps=0,best=+(localStorage.getItem(BEST_KEY)||1),running=false,timer=null,statusMsg='Press Start to begin.';
 document.getElementById('best').textContent=String(best);

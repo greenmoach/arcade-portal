@@ -23,18 +23,19 @@
   <div class="overlay" id="overlay">
     <h2>🐤 Flappy Bird</h2>
     <p>Press Space or Arrow Up to flap. On touch devices, tap the screen anywhere to gain altitude.</p>
-    <button class="btn" id="overlay-btn" onclick="startGame()">Start Game</button>
+    <button class="btn" id="overlay-btn">Start Game</button>
   </div>
   <div class="status" id="status">Press Start to begin.</div>
 </div>
 <p class="hint">Space / Arrow Up / W to flap · Tap screen on mobile</p>
 <script>
 const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
+if(!ctx) throw new Error('Canvas 2D context not available');
 const BEST_KEY='flappyBirdBest';
-let bird={x:110,y:260,vy:0,r:16},pipes=[],score=0,best=+(localStorage.getItem(BEST_KEY)||0),running=false,last=0,spawn=0,statusMsg='Press Start to begin.';
+let bird={x:110,y:260,vy:0,r:16},pipes=[],score=0,best=+(localStorage.getItem(BEST_KEY)||0),running=false,last=0,spawn=0,statusMsg='Press Start to begin.',rafId=0;
 document.getElementById('best').textContent=best;
 updateStats();
-function startGame(){bird={x:110,y:260,vy:0,r:16};pipes=[];score=0;spawn=0;running=true;last=0;statusMsg='Find a rhythm and stay centered.';updateStats();document.getElementById('overlay').style.display='none';requestAnimationFrame(loop);} 
+function startGame(){bird={x:110,y:260,vy:0,r:16};pipes=[];score=0;spawn=0;running=true;last=0;statusMsg='Find a rhythm and stay centered.';updateStats();document.getElementById('overlay').style.display='none';cancelAnimationFrame(rafId);rafId=requestAnimationFrame(loop);}
 function flap(){if(!running)return;bird.vy=-6.6;statusMsg='Flap!';updateStats();}
 function updateStats(){document.getElementById('score').textContent=score;document.getElementById('best').textContent=best;document.getElementById('pipes').textContent=pipes.filter(p=>p.scored).length;document.getElementById('height').textContent=Math.max(0,Math.round(canvas.height-bird.y));document.getElementById('status').textContent=statusMsg;}
 function endGame(text){running=false;statusMsg=`Final score: ${score}`;updateStats();const overlay=document.getElementById('overlay');overlay.innerHTML=`<h2>Flight Over</h2><p>${text}</p><button class="btn" id="overlay-btn">Try Again</button>`;overlay.style.display='flex';document.getElementById('overlay-btn').addEventListener('click',startGame);} 
@@ -45,7 +46,8 @@ function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);const sky=ctx.crea
 ctx.fillStyle='#22c55e';pipes.forEach(pipe=>{ctx.fillRect(pipe.x,0,pipe.w,pipe.top);ctx.fillRect(pipe.x,pipe.top+pipe.gap,pipe.w,canvas.height-(pipe.top+pipe.gap)-28);ctx.fillRect(pipe.x-4,pipe.top-16,pipe.w+8,16);ctx.fillRect(pipe.x-4,pipe.top+pipe.gap,pipe.w+8,16);});
 ctx.fillStyle='#84cc16';ctx.fillRect(0,canvas.height-28,canvas.width,28);
 ctx.save();ctx.translate(bird.x,bird.y);ctx.rotate(Math.max(-.5,Math.min(.8,bird.vy/10)));ctx.fillStyle='#facc15';ctx.beginPath();ctx.arc(0,0,bird.r,0,Math.PI*2);ctx.fill();ctx.fillStyle='#f97316';ctx.beginPath();ctx.moveTo(12,-2);ctx.lineTo(26,4);ctx.lineTo(12,10);ctx.fill();ctx.fillStyle='#111827';ctx.beginPath();ctx.arc(5,-5,3,0,Math.PI*2);ctx.fill();ctx.restore();}
-function loop(ts){if(!running)return;const dt=ts-last||16;last=ts;update(dt);draw();if(running)requestAnimationFrame(loop);} 
+function loop(ts){if(!running)return;const dt=ts-last||16;last=ts;update(dt);draw();if(running)rafId=requestAnimationFrame(loop);}
+document.getElementById('overlay-btn').addEventListener('click',startGame);
 document.addEventListener('keydown',e=>{if(document.getElementById('overlay').style.display!=='none'&&(e.key==='Enter'||e.key===' ')){e.preventDefault();document.getElementById('overlay-btn').click();return;}if([' ','ArrowUp','w','W'].includes(e.key)){e.preventDefault();flap();}});canvas.addEventListener('pointerdown',()=>{if(running)flap();});draw();
 </script>
 </body>

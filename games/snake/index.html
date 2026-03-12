@@ -45,12 +45,12 @@ canvas{background:#fff;border-radius:14px;border:1px solid #e5e7eb;box-shadow:0 
   <div class="overlay" id="overlay">
     <h2>🐍 Snake</h2>
     <p>Use arrow keys or WASD to move</p>
-    <button class="btn" onclick="startGame()">Start Game</button>
+    <button class="btn" id="start-btn">Start Game</button>
   </div>
 </div>
 
 <div class="controls">
-  <button class="btn btn-outline" onclick="startGame()">Restart</button>
+  <button class="btn btn-outline" id="restart-btn">Restart</button>
 </div>
 <p class="hint">Arrow keys / WASD · Mobile: swipe to move</p>
 
@@ -58,6 +58,7 @@ canvas{background:#fff;border-radius:14px;border:1px solid #e5e7eb;box-shadow:0 
 const COLS=20,ROWS=20,CELL=20;
 const canvas=document.getElementById('c');
 const ctx=canvas.getContext('2d');
+if(!ctx) throw new Error('Canvas 2d context unavailable');
 const scoreEl=document.getElementById('score');
 const bestEl=document.getElementById('best');
 const lenEl=document.getElementById('length');
@@ -124,8 +125,8 @@ function draw(){
   // Eyes on head
   const h=snake[0];
   ctx.fillStyle='#fff';
-  const ex=dir.x===0?[-4,4]:[dir.x>0?4:4,dir.x>0?4:4];
-  const ey=dir.y===0?[-4,-4]:[dir.y>0?4:4,dir.y>0?4:4];
+  const ex=dir.x===0?[-4,4]:[dir.x>0?4:-4,dir.x>0?4:-4];
+  const ey=dir.y===0?[-4,4]:[dir.y>0?4:-4,dir.y>0?4:-4];
   ctx.beginPath();ctx.arc(h.x*CELL+CELL/2+ex[0],h.y*CELL+CELL/2+ey[0],3,0,Math.PI*2);ctx.fill();
   ctx.beginPath();ctx.arc(h.x*CELL+CELL/2+ex[1],h.y*CELL+CELL/2+ey[1]+4,3,0,Math.PI*2);ctx.fill();
 }
@@ -162,6 +163,8 @@ canvas.addEventListener('touchend',e=>{
   }
 },{passive:true});
 
+document.getElementById('start-btn').addEventListener('click',startGame);
+document.getElementById('restart-btn').addEventListener('click',startGame);
 // Init draw
 draw();
 </script>

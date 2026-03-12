@@ -21,11 +21,11 @@
 <div class="game">
   <div class="prompt" id="prompt"></div>
   <textarea class="input" id="input" placeholder="Press Start, then begin typing here..." spellcheck="false"></textarea>
-  <div class="controls"><button class="btn" onclick="startGame()">New Passage</button></div>
+  <div class="controls"><button class="btn" id="new-passage-btn">New Passage</button></div>
   <div class="overlay" id="overlay">
     <h2>⌨️ Typing Speed</h2>
     <p>Click Start to load a passage and begin the 60-second test. Use your physical keyboard or mobile on-screen keyboard.</p>
-    <button class="btn" id="overlay-btn" onclick="startGame()">Start Test</button>
+    <button class="btn" id="overlay-btn">Start Test</button>
   </div>
   <div class="status" id="status">Press Start to begin.</div>
 </div>
@@ -46,6 +46,8 @@ function startGame(){target=PASSAGES[Math.floor(Math.random()*PASSAGES.length)];
 function finishGame(){if(!active)return;active=false;clearInterval(timer);inputEl.disabled=true;const finalWpm=+document.getElementById('wpm').textContent;if(finalWpm>best){best=finalWpm;localStorage.setItem(BEST_KEY,String(best));}updateStats(inputEl.value);statusEl.textContent='Test complete.';overlay.innerHTML=`<h2>Test Finished</h2><p>You reached ${finalWpm} WPM with ${document.getElementById('accuracy').textContent} accuracy.</p><button class="btn" id="overlay-btn">Try Another Passage</button>`;overlay.style.display='flex';document.getElementById('overlay-btn').addEventListener('click',startGame);}
 inputEl.addEventListener('input',()=>{if(!active)return;const text=inputEl.value.slice(0,target.length);if(text!==inputEl.value)inputEl.value=text;renderPrompt(inputEl.value);updateStats(inputEl.value);if(inputEl.value===target)finishGame();});
 document.addEventListener('keydown',e=>{if(overlay.style.display!=='none'&&(e.key==='Enter')&&!e.shiftKey){e.preventDefault();document.getElementById('overlay-btn').click();}});
+document.getElementById('overlay-btn').addEventListener('click',startGame);
+document.getElementById('new-passage-btn').addEventListener('click',startGame);
 renderPrompt('');updateStats('');
 </script>
 </body>

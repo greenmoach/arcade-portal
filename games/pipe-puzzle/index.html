@@ -19,12 +19,12 @@
 </div>
 <div class="wrap">
   <div class="board" id="board"></div>
-  <div class="controls"><button class="btn btn-outline" onclick="startGame()">Scramble</button></div>
+  <div class="controls"><button class="btn btn-outline" id="scramble-btn">Scramble</button></div>
   <div class="status" id="status">Press Start to begin.</div>
   <div class="overlay" id="overlay">
     <h2>🛠️ Pipe Puzzle</h2>
     <p>Click or tap a tile to rotate it clockwise. Use arrow keys to move focus and Space or Enter to rotate.</p>
-    <button class="btn" id="overlay-btn" onclick="startGame()">Start Game</button>
+    <button class="btn" id="overlay-btn">Start Game</button>
   </div>
 </div>
 <p class="hint">Tap tiles to rotate · Arrow keys move focus · Enter / Space rotates</p>
@@ -55,6 +55,8 @@ function render(){const connected=computeConnected();boardEl.innerHTML='';for(le
 function rotateTile(x,y){if(!active)return;board[y][x]=rotate(board[y][x]);moves++;render();checkSolved();}
 function checkSolved(){const connected=computeConnected();if(connected.has('4,4')&&connections(board[4][4]).includes('u')){active=false;if(!best||moves<best){best=moves;localStorage.setItem(BEST_KEY,String(best));}bestEl.textContent=best;statusEl.textContent=`Water flows in ${moves} moves!`;overlay.innerHTML=`<h2>🚿 Flow Restored</h2><p>You connected the entire pipe network in ${moves} moves.</p><button class="btn" id="overlay-btn">Play Again</button>`;overlay.style.display='flex';document.getElementById('overlay-btn').addEventListener('click',startGame);}}
 document.addEventListener('keydown',e=>{if(overlay.style.display!=='none'&&(e.key==='Enter'||e.key===' ')){e.preventDefault();document.getElementById('overlay-btn').click();return;}if(!active)return;const row=Math.floor(focusIndex/5),col=focusIndex%5;if(e.key==='ArrowUp')focusIndex=Math.max(0,row-1)*5+col;else if(e.key==='ArrowDown')focusIndex=Math.min(4,row+1)*5+col;else if(e.key==='ArrowLeft')focusIndex=row*5+Math.max(0,col-1);else if(e.key==='ArrowRight')focusIndex=row*5+Math.min(4,col+1);else if(e.key===' '||e.key==='Enter'){e.preventDefault();rotateTile(col,row);return;}else return;e.preventDefault();render();});
+document.getElementById('scramble-btn').addEventListener('click',startGame);
+document.getElementById('overlay-btn').addEventListener('click',startGame);
 render();
 </script>
 </body>

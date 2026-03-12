@@ -23,11 +23,11 @@
   <div class="overlay" id="overlay">
     <h2>💣 Minesweeper</h2>
     <p>Use arrow keys to move the cursor, Enter to reveal, and F to flag. On touch screens, toggle flag mode and tap cells.</p>
-    <button class="btn" id="overlay-btn" onclick="startGame()">Start Game</button>
+    <button class="btn" id="overlay-btn" >Start Game</button>
   </div>
   <div class="controls">
-    <button class="btn alt" id="mode-btn" onclick="toggleFlagMode()">Flag Mode: Off</button>
-    <button class="btn" onclick="startGame()">New Board</button>
+    <button class="btn alt" id="mode-btn" >Flag Mode: Off</button>
+    <button class="btn" id="new-board-btn">New Board</button>
   </div>
   <div class="status" id="status">Press Start to begin.</div>
 </div>
@@ -35,7 +35,7 @@
 <script>
 const SIZE=9,MINES=10,WIN_KEY='minesweeperWins',BEST_KEY='minesweeperBestTime';
 const boardEl=document.getElementById('board'),overlay=document.getElementById('overlay'),statusEl=document.getElementById('status');
-let board,cursor={r:0,c:0},started=false,active=false,flagMode=false,time=0,timer=null,wins=+(localStorage.getItem(WIN_KEY)||0),best=localStorage.getItem(BEST_KEY);document.getElementById('wins').textContent=wins;document.getElementById('best').textContent=best?best+'s':'—';
+let board,cursor={r:0,c:0},started=false,active=false,flagMode=false,time=0,timer=null,wins=+(localStorage.getItem(WIN_KEY)||0),best=localStorage.getItem(BEST_KEY);function fmtTime(s){return s>=60?Math.floor(s/60)+':'+(s%60+'').padStart(2,'0'):s+'s';}document.getElementById('wins').textContent=wins;document.getElementById('best').textContent=best?fmtTime(+best):'—';
 function makeCell(){return{mine:false,revealed:false,flagged:false,count:0};}
 function startGame(){board=Array.from({length:SIZE},()=>Array.from({length:SIZE},makeCell));cursor={r:0,c:0};started=false;active=true;time=0;clearInterval(timer);document.getElementById('time').textContent='0';statusEl.textContent='Reveal a safe tile to start the timer.';overlay.style.display='none';render();updateMineCount();}
 function plantMines(safeR,safeC){let placed=0;while(placed<MINES){const r=Math.floor(Math.random()*SIZE),c=Math.floor(Math.random()*SIZE);if(board[r][c].mine||(r===safeR&&c===safeC))continue;board[r][c].mine=true;placed++;}
@@ -46,13 +46,16 @@ function updateMineCount(){const flags=board.flat().filter(c=>c.flagged).length;
 function reveal(r,c){const cell=board[r][c];if(!active||cell.flagged||cell.revealed)return;cursor={r,c};ensureTimer(r,c);if(cell.mine){cell.revealed=true;active=false;clearInterval(timer);statusEl.textContent='Boom! You hit a mine.';board.flat().forEach(c=>{if(c.mine)c.revealed=true;});render();showOverlay('Boom!','You detonated a mine. Try another board.');return;}const stack=[[r,c]];while(stack.length){const [cr,cc]=stack.pop(),current=board[cr][cc];if(current.revealed||current.flagged)continue;current.revealed=true;if(current.count===0){for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){const nr=cr+dr,nc=cc+dc;if(board[nr]?.[nc]&&!board[nr][nc].revealed)stack.push([nr,nc]);}}}render();checkWin();}
 function flag(r,c){const cell=board[r][c];if(!active||cell.revealed)return;cell.flagged=!cell.flagged;cursor={r,c};render();updateMineCount();}
 function handleCell(r,c){if(flagMode)flag(r,c);else reveal(r,c);} 
-function checkWin(){const safe=SIZE*SIZE-MINES;const revealed=board.flat().filter(c=>c.revealed&&!c.mine).length;if(revealed===safe){active=false;clearInterval(timer);wins++;localStorage.setItem(WIN_KEY,String(wins));if(!best||time<+best){best=String(time);localStorage.setItem(BEST_KEY,best);}document.getElementById('wins').textContent=wins;document.getElementById('best').textContent=(best||'')+'s';statusEl.textContent='Board cleared!';showOverlay('You Win!','Every safe tile is revealed. Great sweep.');}}
+function checkWin(){const safe=SIZE*SIZE-MINES;const revealed=board.flat().filter(c=>c.revealed&&!c.mine).length;if(revealed===safe){active=false;clearInterval(timer);wins++;localStorage.setItem(WIN_KEY,String(wins));if(!best||time<+best){best=String(time);localStorage.setItem(BEST_KEY,best);}document.getElementById('wins').textContent=wins;document.getElementById('best').textContent=fmtTime(+best);statusEl.textContent='Board cleared!';showOverlay('You Win!','Every safe tile is revealed. Great sweep.');}}
 function showOverlay(title,text){overlay.innerHTML=`<h2>${title}</h2><p>${text}</p><button class="btn" id="overlay-btn">Play Again</button>`;overlay.style.display='flex';document.getElementById('overlay-btn').addEventListener('click',startGame);} 
 function render(){boardEl.innerHTML='';for(let r=0;r<SIZE;r++)for(let c=0;c<SIZE;c++){const cell=board[r][c],btn=document.createElement('button');btn.className='cell'+(cell.revealed?' revealed':'')+(cell.flagged?' flagged':'')+(cell.mine&&cell.revealed?' mine':'')+(cursor.r===r&&cursor.c===c?' cursor':'');btn.textContent=cell.revealed?(cell.mine?'💣':cell.count||''):(cell.flagged?'🚩':'');btn.style.color=['','#2563eb','#16a34a','#dc2626','#7c3aed','#b45309','#0f766e','#111827','#6b21a8'][cell.count]||'#111827';btn.addEventListener('click',()=>handleCell(r,c));btn.addEventListener('contextmenu',e=>{e.preventDefault();flag(r,c);});boardEl.appendChild(btn);}}
 document.addEventListener('keydown',e=>{if(overlay.style.display!=='none'&&(e.key==='Enter'||e.key===' ')){e.preventDefault();document.getElementById('overlay-btn').click();return;}if(!board)return;const moveKeys={ArrowLeft:[0,-1],ArrowRight:[0,1],ArrowUp:[-1,0],ArrowDown:[1,0]};if(moveKeys[e.key]){e.preventDefault();cursor.r=(cursor.r+moveKeys[e.key][0]+SIZE)%SIZE;cursor.c=(cursor.c+moveKeys[e.key][1]+SIZE)%SIZE;render();return;}if(e.key==='f'||e.key==='F'){e.preventDefault();flag(cursor.r,cursor.c);}if(e.key==='Enter'){e.preventDefault();reveal(cursor.r,cursor.c);}});
 board=Array.from({length:SIZE},()=>Array.from({length:SIZE},makeCell));
 render();
 updateMineCount();
+document.getElementById("overlay-btn").addEventListener("click",startGame);
+document.getElementById("mode-btn").addEventListener("click",toggleFlagMode);
+document.getElementById("new-board-btn").addEventListener("click",startGame);
 </script>
 </body>
 </html>
