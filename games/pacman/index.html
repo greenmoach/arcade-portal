@@ -60,7 +60,6 @@ const ORDER=['left','up','right','down'];
 const BEST_KEY='pacmanBest';
 const canvas=document.getElementById('c');
 const ctx=canvas.getContext('2d');
-if(!ctx) return;
 const overlay=document.getElementById('overlay');
 const statusEl=document.getElementById('status');
 const scoreEl=document.getElementById('score');
@@ -68,13 +67,13 @@ const livesEl=document.getElementById('lives');
 const levelEl=document.getElementById('level');
 const bestEl=document.getElementById('best');
 const CELL=28;
-let board=[],pacman,ghosts=[],score=0,lives=3,level=1,best=+(localStorage.getItem(BEST_KEY)||0),running=false,rafId=0,lastTime=0,stepTimer=0,stepDelay=160,touchStart=null;
+let board=[],pacman,ghosts=[],score=0,lives=3,level=1,best=+(localStorage.getItem(BEST_KEY)||0),running=false,rafId=0,lastTime=0,stepTimer=0,stepDelay=220,touchStart=null;
 bestEl.textContent=best;
 function cloneBoard(){return MAP_TEMPLATE.map(row=>row.split(''));}
 function pelletCount(){return board.flat().filter(ch=>ch==='.'||ch==='o').length;}
 function setStartPositions(){pacman={x:1,y:1,dir:'right',next:'right',mouth:0};ghosts=[{x:13,y:1,dir:'left',color:'#ef4444'},{x:13,y:13,dir:'up',color:'#06b6d4'},{x:1,y:13,dir:'right',color:'#ec4899'}];board[pacman.y][pacman.x]=' ';ghosts.forEach(g=>board[g.y][g.x]=' ');}
 function startGame(){score=0;lives=3;level=1;beginLevel(true);overlay.style.display='none';}
-function beginLevel(resetScore=false){if(!resetScore)score+=100;board=cloneBoard();setStartPositions();running=true;stepDelay=Math.max(85,160-(level-1)*10);statusEl.textContent=`Level ${level}: clear the maze.`;updateStats();draw();if(!lastTime){cancelAnimationFrame(rafId);rafId=requestAnimationFrame(loop);}}
+function beginLevel(resetScore=false){if(!resetScore)score+=100;board=cloneBoard();setStartPositions();running=true;stepDelay=Math.max(130,220-(level-1)*10);statusEl.textContent=`Level ${level}: clear the maze.`;updateStats();draw();if(!lastTime){cancelAnimationFrame(rafId);rafId=requestAnimationFrame(loop);}}
 function updateStats(){scoreEl.textContent=score;livesEl.textContent=lives;levelEl.textContent=level;bestEl.textContent=best;}
 function queueDir(dir){pacman.next=dir;}
 function openTile(x,y){return board[y]?.[x] && board[y][x]!=='#';}
