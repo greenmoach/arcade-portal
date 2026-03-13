@@ -43,7 +43,6 @@
 <p class="hint">Arrow keys / A D to move · Space / W / ↑ to jump · Collect every gem before entering the portal</p>
 <script>
 const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
-if(!ctx) return;
 const BEST_KEY='platformerQuestBest';
 const world={width:1500,height:360,ground:316,platforms:[{x:0,y:316,w:320,h:44},{x:360,y:270,w:170,h:18},{x:580,y:228,w:120,h:18},{x:740,y:286,w:150,h:18},{x:930,y:248,w:150,h:18},{x:1120,y:210,w:120,h:18},{x:1280,y:264,w:150,h:18},{x:1390,y:316,w:110,h:44}],hazards:[{x:330,y:316,w:26,h:16},{x:546,y:316,w:28,h:16},{x:1088,y:316,w:28,h:16},{x:1248,y:316,w:26,h:16}],gems:[{x:396,y:236,r:10},{x:628,y:194,r:10},{x:980,y:214,r:10},{x:1324,y:230,r:10}],enemies:[{x:770,y:262,w:28,h:24,min:740,max:860,dir:1},{x:1150,y:186,w:28,h:24,min:1120,max:1210,dir:-1}],goal:{x:1432,y:236,w:40,h:80}};
 let player,keys={},running=false,rafId=0,last=0,statusMsg='Press Start to begin.',best=+(localStorage.getItem(BEST_KEY)||0),cameraX=0,gemsTaken=0,lives=3,progress=0;

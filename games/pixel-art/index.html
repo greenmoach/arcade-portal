@@ -45,7 +45,6 @@
 const SIZE=16,CELL=32,BEST_KEY='pixelArtBest';
 const COLORS=[['Rose','#fb7185'],['Amber','#f59e0b'],['Mint','#10b981'],['Sky','#38bdf8'],['Violet','#8b5cf6'],['Slate','#64748b'],['Ink','#111827'],['Eraser','#ffffff']];
 const canvas=document.getElementById('canvas'),ctx=canvas.getContext('2d'),paletteEl=document.getElementById('palette'),overlay=document.getElementById('overlay'),statusEl=document.getElementById('status');
-if(!ctx) return;
 let grid=[],cursor={x:7,y:7},colorIndex=0,started=false,pointerDown=false,best=+(localStorage.getItem(BEST_KEY)||0);
 document.getElementById('best').textContent=String(best);
 function freshGrid(){return Array.from({length:SIZE},()=>Array(SIZE).fill('#ffffff'));}

@@ -52,7 +52,6 @@
 <p class="hint">Keyboard: arrows · Touch: tap left/right half to pump, top/bottom to adjust rope</p>
 <script>
 const canvas=document.getElementById('pendulum'),ctx=canvas.getContext('2d');
-if(!ctx) return;
 const BEST_KEY='pendulumBest',anchor={x:280,y:44};
 let angle=.95,vel=0,length=180,score=0,best=+(localStorage.getItem(BEST_KEY)||0),timeLeft=45,last=0,running=false,rafId=0,statusMsg='Catch the stars and dodge the red hazard orbs.',star={x:120,y:180,r:14},hazards=[];
 document.getElementById('best').textContent=best;
